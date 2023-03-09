@@ -9,10 +9,10 @@ public class Depot extends Destination {
     @Override
     public String toString() {
         return "Depot{" +
-                "localisation=" + localisation +
-                ", idName=" + idName +
-                ", readyTime=" + readyTime +
-                ", dueTime=" + dueTime +
+                "localisation=" + super.localisation +
+                ", idName=" + super.idName +
+                ", readyTime=" + super.readyTime +
+                ", dueTime=" + super.dueTime +
                 '}';
     }
 }

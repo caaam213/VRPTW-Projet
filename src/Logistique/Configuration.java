@@ -3,25 +3,38 @@ package Logistique;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ *
+ */
 public class Configuration {
 
     private ArrayList<Client> listClients = new ArrayList<Client>();
     private Depot centralDepot;
     private Vehicule truck;
+    private int FileNumber;
 
+
+
+    /**
+     * @param FileNumber
+     */
     public Configuration(String FileNumber) {
+        this.FileNumber = Integer.parseInt(FileNumber);
         openAndInitializeFile(FileNumber);
     }
 
+    public int getFileNumber() {
+        return FileNumber;
+    }
+
     private StringBuffer openFile(String fileNumber) {
-        File file=new File("./data/data"+fileNumber+".vrp");
-        BufferedReader br= null;
+        File file = new File("./data/data" + fileNumber + ".vrp");
+        BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(file));
-            StringBuffer dataStringBuffered=new StringBuffer();
+            StringBuffer dataStringBuffered = new StringBuffer();
             String line;
-            while((line=br.readLine())!=null)
-            {
+            while ((line = br.readLine()) != null) {
                 dataStringBuffered.append(line);
                 dataStringBuffered.append("\n");
             }
@@ -37,7 +50,10 @@ public class Configuration {
 
     }
 
-    private void openAndInitializeFile(String fileNumber){
+    /**
+     * @param fileNumber
+     */
+    private void openAndInitializeFile(String fileNumber) {
         StringBuffer dataStringBuffered = openFile(fileNumber);
         String[] linesData = dataStringBuffered.toString().split("\n");
         getDepotFromFile(linesData);
@@ -45,6 +61,9 @@ public class Configuration {
         getTruckFromFile(linesData);
     }
 
+    /**
+     * @param linesData
+     */
     private void getTruckFromFile(String[] linesData) {
         String line = new String();
         line = linesData[6];
@@ -53,28 +72,34 @@ public class Configuration {
         truck = new Vehicule(capacity);
     }
 
-    private int[] convertInfoIntoInt(String[] elements)
-    {
+    /**
+     * @param elements
+     * @return
+     */
+    private int[] convertInfoIntoInt(String[] elements) {
         int[] elementsInt = new int[elements.length];
-        for(int i=1;i< elements.length;i++)
-        {
+        for (int i = 1; i < elements.length; i++) {
             elementsInt[i] = Integer.parseInt(elements[i]);
         }
         return elementsInt;
     }
 
+    /**
+     * @param linesData
+     */
     private void getDepotFromFile(String[] linesData) {
-        String line = new String();
-        line = linesData[9];
+        String line = linesData[9];
         String[] elements = line.split(" ");
-        System.out.println(elements.length);
         int[] content = convertInfoIntoInt(elements);
         GPSCoordinates depotLocalisation = new GPSCoordinates(content[1], content[2]);
         centralDepot = new Depot(depotLocalisation, elements[0], content[3], content[4]);
     }
 
+    /**
+     * @param linesData
+     */
     private void getClientsFromFile(String[] linesData) {
-        for ( int i = 12; i< linesData.length; i++) {
+        for (int i = 12; i < linesData.length; i++) {
             String line;
             line = linesData[i];
             String[] elements = line.split(" ");
@@ -85,24 +110,34 @@ public class Configuration {
         }
     }
 
+    /**
+     * @return
+     */
     public ArrayList<Client> getListClients() {
         return listClients;
     }
 
+    /**
+     * @return
+     */
     public Depot getCentralDepot() {
         return centralDepot;
     }
 
+    /**
+     * @return
+     */
     public Vehicule getTruck() {
         return truck;
     }
 
-    public void displayClient()
-    {
+    /**
+     *
+     */
+    public void displayClient() {
         System.out.println(centralDepot.toString());
         System.out.println();
-        for(Client client:listClients)
-        {
+        for (Client client : listClients) {
             System.out.println(client.toString());
             System.out.println();
 

@@ -22,10 +22,10 @@ public class Client extends Destination {
                 ", nbClients=" + nbClients +
                 ", deleveryTime=" + deleveryTime +
                 ", isTheClientServed=" + isTheClientServed +
-                ", localisation=" + localisation +
-                ", idName=" + idName +
-                ", readyTime=" + readyTime +
-                ", dueTime=" + dueTime +
+                ", localisation=" + super.localisation +
+                ", idName=" + super.idName +
+                ", readyTime=" + super.readyTime +
+                ", dueTime=" + super.dueTime +
                 '}';
     }
 
