@@ -4,7 +4,7 @@ Questions :
 - Préciser le type de marchandises pas dans la data 
 
 Variables : 
-- bi : booléen qui vaut vrai si le client i a été livré 
+- bij : booléen qui vaut vrai si le client i a été livré par le camion j
 - kj : capacité restante pour un camion j 
 
 Objectif :minimiser la somme des dj pour j allant de 1 à n où dj est la distance totale parcourue par un camion j 
