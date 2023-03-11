@@ -4,19 +4,16 @@ Questions :
 - Préciser le type de marchandises pas dans la data 
 
 Variables : 
-- dj : distance totale parcourue par un camion j 
-- i : un client
-- j : un véhicule 
 - bi : booléen qui vaut vrai si le client i a été livré 
 - kj : capacité restante pour un camion j 
 
-Objectif :minimiser la somme des dj pour j allant de 1 à n 
+Objectif :minimiser la somme des dj pour j allant de 1 à n où dj est la distance totale parcourue par un camion j 
+
 
 Contraintes : 
 - 1 client est livré une fois et une seule fois par un véhicule 
 - respecter la capacité max du camion qui vaut C 
 - la livraison d'un client doit se faire dans la fenetre de temp, arriver entre le ready time et le due time
 - la quantité demandée par le client doit etre inférieure à la quatité de marchandises dans le camion
-
 
 
