@@ -16,7 +16,7 @@ Contraintes :
 - 1 client est livré une fois et une seule fois par un véhicule 
 - respecter la capacité max du camion qui vaut C 
 - la livraison d'un client doit se faire dans la fenetre de temp, arriver entre le ready time et le due time
-- la quantité demandée par le client doit etre inférieure à la quatité de marchandises dans le camions 
+- la quantité demandée par le client doit etre inférieure à la quatité de marchandises dans le camion
 
 
 
