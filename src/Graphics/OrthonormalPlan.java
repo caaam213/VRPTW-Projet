@@ -5,8 +5,11 @@
 package Graphics;
 
 import Logistique.Client;
+import Logistique.Depot;
 import Logistique.Configuration;
 import Logistique.Destination;
+import Metaheuristique.Road;
+import Metaheuristique.Solution;
 
 import java.awt.*;
 import javax.swing.JFrame;
@@ -23,20 +26,22 @@ public class OrthonormalPlan extends JPanel {
     private final Color pointColorClient = Color.RED;
     private final Color pointColorDepot = Color.GREEN;
     private Configuration config;
+    private Solution solution;
 
     private int screenWidth;
     private int screenHeight;
     private final int multiplier = 10;
 
     /**
-     * Constructor of the class OrthonormalPlan
-     * @param config the configuration used to draw the plan
+     * Constructor
+     * @param solution the solution to display
      */
-    public OrthonormalPlan(Configuration config) {
-        this.config = config;
+    public OrthonormalPlan(Solution solution) {
+        this.solution = solution;
+        this.config = solution.getConfig();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         screenWidth = screenSize.width;
-        screenHeight = 800;
+        screenHeight = screenSize.height;
 
     }
 
@@ -67,6 +72,32 @@ public class OrthonormalPlan extends JPanel {
         drawPoint(g, config.getCentralDepot(), centerX + config.getCentralDepot().getLocalisation().getX() * multiplier,
                 centerY - config.getCentralDepot().getLocalisation().getY() * multiplier, pointColorDepot);
 
+        //Draw roads
+        drawRoads(g2d,translateX,translateY);
+    }
+    private void drawRoads(Graphics2D g, int translateX, int translateY)
+    {
+        for (Road road : solution.getRoads()) {
+            g.setColor(road.getColor());
+            for (int i = 0; i < road.getDestinations().size() - 1; i++) {
+                Destination d1 = road.getDestinations().get(i);
+                Destination d2 = road.getDestinations().get(i + 1);
+                g.drawLine((d1.getLocalisation().getX()) * multiplier-translateX,
+                        (d1.getLocalisation().getY()) * multiplier-translateY,
+                        (d2.getLocalisation().getX()) * multiplier-translateX,
+                        (d2.getLocalisation().getY()) * multiplier-translateY);
+
+            }
+        }
+    }
+
+    private void test(Graphics g, int translateX, int translateY) {
+        Road road = solution.getRoads().get(0);
+        g.setColor(road.getColor());
+        g.drawLine((road.getDestinations().get(0).getLocalisation().getX()-translateX) * multiplier,
+                (road.getDestinations().get(0).getLocalisation().getY()-translateY) * multiplier,
+                (road.getDestinations().get(1).getLocalisation().getX()-translateX) * multiplier,
+                (road.getDestinations().get(1).getLocalisation().getY()-translateY) * multiplier);
     }
 
     /**
@@ -128,7 +159,7 @@ public class OrthonormalPlan extends JPanel {
             }
         }
 
-        System.out.println("clientMostTop: " + clientMostTop.getIdName());
+        System.out.println("clientMostTop: " + clientMostTop.getIdName()+" "+clientMostTop.getLocalisation().getY()+" "+clientMostTop.getLocalisation().getX());
         System.out.println("clientMostBottom: " + clientMostBottom.getIdName());
         System.out.println("clientMostLeft: " + clientMostLeft.getIdName());
         System.out.println("clientMostRight: " + clientMostRight.getIdName());
@@ -146,7 +177,7 @@ public class OrthonormalPlan extends JPanel {
         panel.setLayout(new BorderLayout());
 
         // Add the JPanel to the JFrame
-        OrthonormalPlan orthonormalPlan = new OrthonormalPlan(config);
+        OrthonormalPlan orthonormalPlan = new OrthonormalPlan(solution);
         panel.add(orthonormalPlan, BorderLayout.CENTER);
         panel.setPreferredSize(new Dimension(this.screenWidth, this.screenHeight+500));
 

@@ -10,7 +10,7 @@ public class Configuration {
 
     private ArrayList<Client> listClients = new ArrayList<Client>();
     private Depot centralDepot;
-    private Vehicule truck;
+    private Vehicle truck;
     private int FileNumber;
 
 
@@ -69,7 +69,7 @@ public class Configuration {
         line = linesData[6];
         String[] elements = line.split(" ");
         int capacity = Integer.parseInt(elements[1]);
-        truck = new Vehicule(capacity);
+        truck = new Vehicle(capacity);
     }
 
     /**
@@ -127,7 +127,7 @@ public class Configuration {
     /**
      * @return
      */
-    public Vehicule getTruck() {
+    public Vehicle getTruck() {
         return truck;
     }
 

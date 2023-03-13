@@ -14,6 +14,14 @@ public abstract class Destination {
         this.dueTime = dueTime;
     }
 
+    public int getReadyTime() {
+        return readyTime;
+    }
+
+    public int getDueTime() {
+        return dueTime;
+    }
+
     public String getIdName() {
         return idName;
     }
