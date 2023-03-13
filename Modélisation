@@ -17,3 +17,14 @@ Contraintes :
 - la quantité demandée par le client doit etre inférieure à la quatité de marchandises dans le camion
 
 
+Notes : si on fait exechange, on peut soit reconstruire toutes les routes ou simplement réorganiser le trajet 
+=> implémenter une fonction qui vérifie la validité des fenetres de temps du trajet 
+=> implémenter une fonction qui organise l'ordre de passage des clients 
+=> ajouter une classe solution avec la valeur de la distance totale 
+
+Aujourd'hui : 
+- modifier la classe véhicule 
+- ajouter une classe road et une classe soltuion 
+- passer le code en Anglais
+- on va implémenter la méthode tabou sure et l'autre reste à déterminer 
+- fonction qui ajoute/insere un client à une route ( soit ajoute au premier endroit dispo soit au meilleur endroit ) 
