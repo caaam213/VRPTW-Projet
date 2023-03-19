@@ -1,19 +1,15 @@
-import Graphics.OrthonormalPlan;
+import Graphics.SolutionVisualization;
 import Logistique.Configuration;
 import Metaheuristique.Solution;
 import Utils.SolutionUtils;
 
-import javax.swing.*;
-import java.awt.*;
-
 public class Main {
     public static void main(String[] args) {
-        Configuration config = new Configuration("101");
-        Solution solution = SolutionUtils.generateRandomSolution(config);
+        Configuration config = new Configuration("1202");
+        System.out.println("Nombre de vehicules minimal : "+config.getNumberOfMinimalVehicles());
+        System.out.println("Solution aleatoire generee : ");
+        Solution solution = SolutionUtils.generateRandomSolution(config, true);
         solution.displaySolution();
-        OrthonormalPlan plan = new OrthonormalPlan(solution);
-        plan.display();
-
-
+        SolutionVisualization.DisplayGraph(config, solution);
     }
 }

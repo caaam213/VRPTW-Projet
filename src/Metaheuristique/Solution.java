@@ -18,13 +18,6 @@ public class Solution {
         idSolution += 1;
     }
 
-    public int totalDistanceCovered()
-    {
-        for (Road road : roads) {
-            totalDistanceCovered += road.getDistance();
-        }
-        return totalDistanceCovered;
-    }
 
     public void setConfig(Configuration config) {
         this.config = config;
@@ -54,6 +47,10 @@ public class Solution {
         return roads;
     }
 
+    /**
+     *
+     * Display the solution in the console
+     */
     public void displaySolution()
     {
         System.out.println("Il y a "+roads.size()+" routes");

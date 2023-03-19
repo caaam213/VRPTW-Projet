@@ -1,7 +1,6 @@
 package Metaheuristique;
-import Logistique.Client;
 import Logistique.Destination;
-import Graphics.ColorGenerator;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -21,7 +20,6 @@ public class Road {
         distance = 0;
         destinations = new ArrayList<Destination>();
         idRoad = nbRoad;
-        color = ColorGenerator.getRandomColor();
         nbRoad++;
     }
 

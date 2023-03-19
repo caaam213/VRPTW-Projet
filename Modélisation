@@ -28,3 +28,6 @@ Aujourd'hui :
 - passer le code en Anglais
 - on va implémenter la méthode tabou sure et l'autre reste à déterminer 
 - fonction qui ajoute/insere un client à une route ( soit ajoute au premier endroit dispo soit au meilleur endroit ) 
+
+Nombre de camions minimal : Il faut diviser la somme des demandes par la capacité max du camion
+Il faut aussi prendre en compte les fenêtres de temps
