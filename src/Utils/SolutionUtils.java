@@ -62,16 +62,12 @@ public class SolutionUtils {
         {
             return false;
         }
-
         // Verify if the capacity left is enough to deliver the client
         if (arriveClient.getDemand() > capacity)
         {
             return false;
         }
-
         return true;
-
-
     }
 
     /**
