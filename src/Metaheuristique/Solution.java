@@ -12,12 +12,12 @@ public class Solution {
 
     private Configuration config;
     int totalDistanceCovered = 0;
+    int nbClientsServed = 0;
     static int idSolution = 0;
 
     public Solution() {
         idSolution += 1;
     }
-
 
     public void setConfig(Configuration config) {
         this.config = config;
@@ -41,6 +41,10 @@ public class Solution {
 
     public int getTotalDistanceCovered() {
         return totalDistanceCovered;
+    }
+
+    public int getNbClientsServed() {
+        return nbClientsServed;
     }
 
     public ArrayList<Road> getRoads() {
