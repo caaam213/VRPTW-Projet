@@ -155,20 +155,6 @@ public class Configuration {
      */
     public int getNumberOfMinimalVehicles() {
         int numberOfMinimalVehicles = 0;
-
-        System.out.println("Le nombre de vehicules max base sur la capacite : " + getNumberOfVehiclesMinBasedOnCapacity());
-        System.out.println("Le nombre de vehicules max base sur le temps : " + getNumberOfSimultaneousClients());
-
-        return Math.max(numberOfMinimalVehicles, getNumberOfSimultaneousClients());
-    }
-
-    /**
-     * Return the minimum vehicles needed based on the capacity of the truck
-     * @return the minimum vehicles needed based on the capacity of the truck
-     */
-    public int getNumberOfVehiclesMinBasedOnCapacity()
-    {
-        int numberOfMinimalVehicles = 0;
         //Based on capacity
         int capacity = truck.getCapacity();
         int totalDemand = 0;
@@ -180,43 +166,9 @@ public class Configuration {
             numberOfMinimalVehicles += 1;
         }
         return numberOfMinimalVehicles;
-    }
-
-    /**
-     * Return the number of simultaneous clients to get the number of vehicles needed
-     * @return the number of simultaneous clients to get the number of vehicles needed
-     */
-    private int getNumberOfSimultaneousClients() {
-        int max = 0;
-
-        for (int i = 0; i < getMaxDueDateClient(); i=i+10) {
-            int numberOfSimultanateClients = 0;
-            for (Client client : listClients) {
-                if (client.getDueTime() >= i && client.getDueTime() < i+10) {
-                    numberOfSimultanateClients++;
-                }
-            }
-            if (max < numberOfSimultanateClients)
-            {
-                max = numberOfSimultanateClients;
-            }
-        }
-        return max;
 
     }
 
-    /**
-     * Return the max due date of all clients
-     * @return the max due date of all clients
-     */
-    private int getMaxDueDateClient() {
-        int maxDueDate = 0;
-        for (Client client : listClients) {
-            if (client.getDueTime() > maxDueDate) {
-                maxDueDate = client.getDueTime();
-            }
-        }
-        return maxDueDate;
-    }
+
 
 }

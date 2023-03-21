@@ -168,7 +168,7 @@ public class SolutionUtils {
 
             }
         }
-        if (road.getDestinations().size() == 1)
+        if (road.getDestinations().size() > 1)
         {
             distance += distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), conf.getCentralDepot()); // Add distance from the last client to the depot
             totalDistance += distance; // Add distance from the last client to the depot

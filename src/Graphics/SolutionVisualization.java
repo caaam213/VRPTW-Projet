@@ -16,7 +16,7 @@ import java.util.Hashtable;
 import java.util.Random;
 
 public class SolutionVisualization {
-    static final int MULTIPLIER = 15;
+    static final int MULTIPLIER = 10;
     static final int HEIGHTANDWEIGHTVERTEX = 20;
 
     static final int WIDTHFRAME = 1000;
