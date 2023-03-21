@@ -44,6 +44,10 @@ public class Client extends Destination {
         return service;
     }
 
+    public int getNbClients() {
+        return nbClients;
+    }
+
     public int getDeliveryTime() {
         return deliveryTime;
     }
