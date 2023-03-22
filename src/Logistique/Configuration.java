@@ -161,6 +161,7 @@ public class Configuration {
         for (Client client : listClients) {
             totalDemand += client.getDemand();
         }
+        System.out.println(totalDemand);
         numberOfMinimalVehicles = totalDemand / capacity;
         if (totalDemand % capacity != 0) {
             numberOfMinimalVehicles += 1;

@@ -13,6 +13,7 @@ public class Solution {
     private Configuration config;
     int totalDistanceCovered = 0;
     int nbClientsServed = 0;
+    int nbClients = config.getListClients().size();
     static int idSolution = 0;
 
     public Solution() {
@@ -51,6 +52,10 @@ public class Solution {
         return roads;
     }
 
+    public void setRoads(ArrayList<Road> roads) {
+        this.roads = roads;
+    }
+
     /**
      *
      * Display the solution in the console
@@ -75,4 +80,23 @@ public class Solution {
         }
 
     }
+
+    /*public boolean isSolutionValid()
+    {
+        boolean isValid = true;
+        for(Road road : roads)
+        {
+            int time = 0;
+            int capacity = config.getTruck().getCapacity();
+            for (Destination destination : road.getDestinations())
+            {
+                time += destination.();
+                capacity -= destination.getDe;
+                if(time > destination.getDueTime() || capacity < 0)
+                {
+                    isValid = false;
+                }
+            }
+        }
+    }*/
 }
