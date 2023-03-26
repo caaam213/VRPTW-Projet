@@ -85,9 +85,16 @@ public class SolutionVisualization {
             // Create the vertex array
             Object[] vertexes = new Object[101];
             int i = 1;
-            vertexes[0] = config.getCentralDepot();
+            Object vertex = graph.insertVertex(parent, null, config.getCentralDepot().getIdName(),
+                    config.getCentralDepot().getLocalisation().getX()*MULTIPLIER,
+                    config.getCentralDepot().getLocalisation().getY()*MULTIPLIER, HEIGHTANDWEIGHTVERTEX,
+                    HEIGHTANDWEIGHTVERTEX,"fillColor=red");
+            vertexes[0] = vertex;
+
             for (Client client : config.getListClients()) {
-                Object vertex = graph.insertVertex(parent, null, client.getIdName(), client.getLocalisation().getX()*MULTIPLIER, client.getLocalisation().getY()*MULTIPLIER, HEIGHTANDWEIGHTVERTEX, HEIGHTANDWEIGHTVERTEX);
+                vertex = graph.insertVertex(parent, null, client.getIdName(),
+                        client.getLocalisation().getX()*MULTIPLIER,
+                        client.getLocalisation().getY()*MULTIPLIER, HEIGHTANDWEIGHTVERTEX, HEIGHTANDWEIGHTVERTEX);
                 vertexes[i] = vertex;
                 i++;
             }
@@ -99,8 +106,8 @@ public class SolutionVisualization {
                 for (i = 0; i < road.getDestinations().size() - 1; i++) {
                     String d1 = road.getDestinations().get(i).getIdName();
                     String d2 = road.getDestinations().get(i + 1).getIdName();
-                    int d1Index = d1.substring(0).equals("d") ? 0 : Integer.parseInt(d1.substring(1, d1.length()));
-                    int d2Index = d2.substring(0).equals("d") ? 0 : Integer.parseInt(d2.substring(1, d2.length()));
+                    int d1Index = d1.equals("d1") ? 0 : Integer.parseInt(d1.substring(1, d1.length()));
+                    int d2Index = d2.equals("d1") ? 0 : Integer.parseInt(d2.substring(1, d2.length()));
                     graph.insertEdge(parent, null, "", vertexes[d1Index], vertexes[d2Index], "strokeColor="+color);
                 }
                 nbRoadsMaxToDisplay--;
