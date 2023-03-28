@@ -21,7 +21,6 @@ public class Road implements Cloneable{
         distance = 0;
         time = 0;
         capacityDelivered = 0;
-
         destinations = new ArrayList<Destination>();
         edges = new ArrayList<Edge>();
         idRoad = nbRoad;
@@ -81,7 +80,17 @@ public class Road implements Cloneable{
         distance -= edge.getDistance();
         time = edges.get(edges.size()-1).getTime();
         capacityDelivered -= edge.getQuantityDelivered();
+    }
 
+    public void removeDestinationToRoad(int indexDest) {
+        Edge firstEdge = this.getEdges().get(indexDest);
+        Edge secondEdge = this.getEdges().get(indexDest);
+        this.edges.remove(indexDest);
+        this.edges.remove(indexDest+1);
+        this.getDestinations().remove(indexDest);
+        distance = distance - firstEdge.getDistance() - secondEdge.getDistance();
+        time = edges.get(edges.size()-1).getTime();
+        capacityDelivered = firstEdge.getQuantityDelivered() - secondEdge.getQuantityDelivered();
     }
 
 
@@ -110,6 +119,11 @@ public class Road implements Cloneable{
     public int getTime() {
         return time;
     }
+
+    public int getTimeByIndex(int indexDest) {
+        return this.getEdges().get(indexDest).getTime();
+    }
+
 
     public void setTime(int time) {
         this.time = time;

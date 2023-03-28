@@ -7,9 +7,7 @@ public class Edge {
     private Destination arriveClient;
     private int distance;
     private int time;
-
     private int quantityDelivered;
-
     private int posEdge;
 
     public Edge(Destination departClient, Destination arriveClient, int distance) {

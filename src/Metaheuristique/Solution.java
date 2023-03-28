@@ -56,6 +56,10 @@ public class Solution implements Cloneable {
         return roads;
     }
 
+    public Road getARoad(int indexRoad) {
+        return roads.get(indexRoad);
+    }
+
     public void setRoads(ArrayList<Road> roads) {
         this.roads = roads;
     }
@@ -96,38 +100,7 @@ public class Solution implements Cloneable {
 
     }
 
-    public boolean isSolutionValid()
-    {
-        for(Road road : roads)
-        {
-            if (!road.getEdges().get(0).getDepartClient().getIdName().equals("d1") ||
-                    !road.getEdges().get(road.getEdges().size()-1).getArriveClient().getIdName().equals("d1"))
-            {
-                return false;
-            }
 
-            if(road.getDestinations().size() != config.getListClients().size()+2)
-            {
-                return false;
-            }
-
-            int time = 0;
-            int capacity = config.getTruck().getCapacity();
-            for (int i = 0; i < road.getDestinations().size()-1; i++) {
-                Destination destination = road.getDestinations().get(i);
-                Destination nextDestination = road.getDestinations().get(i+1);
-                time += SolutionUtils.distanceBetweenTwoDestination(destination, nextDestination);
-                if (destination instanceof Client) {
-                    capacity -= ((Client) destination).getDemand();
-                }
-                if (time > nextDestination.getDueTime() || capacity < 0) {
-                    return false;
-                }
-            }
-
-        }
-        return true;
-    }
 
     public Solution clone()
     {

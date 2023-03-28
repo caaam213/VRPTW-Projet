@@ -69,9 +69,7 @@ public class SolutionUtils {
         {
             if (time + distanceBetweenTwoDestination(startClient, arriveClient)+ ((Client) arriveClient).getDeliveryTime() > arriveClient.getDueTime())
             {
-
                 return false;
-
             }
             // Verify if the capacity left is enough to deliver the client
             if (((Client) arriveClient).getDemand() > capacity)
@@ -79,7 +77,6 @@ public class SolutionUtils {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -137,17 +134,11 @@ public class SolutionUtils {
 
             distance += distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), client);
             capacity -= ((Client) client).getDemand();
-
         }
         else
         {
             time = time + distanceBetweenTwoDestinations;
         }
-
-
-
-
-
         return new int[]{time, distance, capacity, distanceBetweenTwoDestinations};
     }
 
