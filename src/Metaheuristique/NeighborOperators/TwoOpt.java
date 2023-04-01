@@ -26,12 +26,9 @@ public class TwoOpt {
     {
         Road roadInter = new Road();
 
-
-
         for (int i = 0; i < posEdge1; i++)
         {
             Destination desti = road.getDestinations().get(i);
-
             roadInter.addDestinationsToRoad(desti, road.getEdges().get(i));
         }
 

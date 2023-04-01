@@ -14,28 +14,40 @@ public class NeighboorOperation {
 
     // Relocate intra route
     public static Solution RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
-        Solution voisins = new Solution();
-        Road road = solution.getRoads().get(roadSelected).clone();
-        Destination startClient = road.getDestinations().get(indexClient-1);
-        Destination arriveClient = road.getDestinations().get(indexClient);
-        road.removeDestinationToRoad(indexClient);
+        Road initialRoad = solution.getRoads().get(roadSelected).clone();
+        // on récupère la route du trajet concerné
+        Road newRoad = solution.getRoads().get(roadSelected).clone();
+        // On recupère la destination du client
+        Destination arriveClient = newRoad.getDestinations().get(indexClient);
+        // on retire le client du trajet
+        newRoad.removeDestinationToRoad(indexClient);
+        // on crée un candidat
         Solution candidate = solution.clone();
-        boolean isRoadNotPossible = false;
-        road.getDestinations().add(newIndexClient, arriveClient);
-        for (int i = 0; i < solution.getARoad(roadSelected).getDestinations().size() ; i++) {
-            int time = road.getTimeByIndex(i);
-            if (SolutionUtils.isClientCanBeDelivered(road.getDestinations().get(i), road.getDestinations().get(i+1), time, road.getEdges().get(i).getQuantityDelivered()) == false) {
+        ArrayList<Boolean> isRoadPossible = new ArrayList<Boolean>();
+        // on ajoute le client à sa nouvelle position
+        newRoad = newRoad.addDestinationsAndUpdateEdgeToRoad(solution, arriveClient, newIndexClient);
+        // On vérifie si les conditions sont respectées
+        // on vérifie pour chacune des destinations de la route si le nouveau trajet est possible
+        candidate.getRoads().set(roadSelected, newRoad);
+        int size = candidate.getARoad(roadSelected).getEdges().size();
+        for (int i = 0; i < size-1; i++) {
+            int time = newRoad.getTimeByIndex(i);
+            if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
                 System.out.println("conditions non respectees");
-                isRoadNotPossible = true;
-                break;
+                isRoadPossible.add(false);
             }
         }
-        if(!isRoadNotPossible)
+        if(isRoadPossible.contains(false))
         {
-            candidate.getRoads().set(roadSelected, road);
-            SolutionVisualization.DisplayGraph(solution.getConfig(), candidate);
+            System.out.println("trajet impossible");
+            return null;
         }
-        return candidate;
+        else
+        {
+            System.out.println("Toutes les conditions sont respectees");
+            SolutionVisualization.DisplayGraph(solution.getConfig(), candidate);
+            return candidate;
+        }
     }
 
     // Relocate inter routes
@@ -57,17 +69,51 @@ public class NeighboorOperation {
     }
 
     // Exchange intra route
-    public static Solution Exchange(Solution solution, int roadSelected, int firstClient, int secondClient) {
-        ArrayList<Road> roads = solution.getRoads();
-        Solution candidate = solution;
-        Destination firstClientDestinsation = roads.get(roadSelected).getDestinations().get(firstClient);
-        Destination secondClientDestinsation = roads.get(roadSelected).getDestinations().get(secondClient);
-        roads.get(roadSelected).getDestinations().remove(firstClient);
-        roads.get(roadSelected).getDestinations().add(firstClient, secondClientDestinsation);
-        roads.get(roadSelected).getDestinations().remove(firstClient);
-        roads.get(roadSelected).getDestinations().add(secondClient, firstClientDestinsation);
-        candidate.setRoads(roads);
-        return candidate;
+    public static Solution Exchange(Solution solution, int roadSelected, int firstClient, int secondClient)
+    {
+        Road initialRoad = solution.getRoads().get(roadSelected);
+        Road newRoad = solution.getRoads().get(roadSelected).clone();
+        Solution candidate = solution.clone();
+        // récupérer les destinations des deux clients à échanger
+        Destination firstClientDestinsation = solution.getRoads().get(roadSelected).getDestinations().get(firstClient);
+        Destination secondClientDestinsation = solution.getRoads().get(roadSelected).getDestinations().get(secondClient);
+        ArrayList<Destination> newDestinations = new ArrayList<Destination>();
+        ArrayList<Boolean> isRoadPossible = new ArrayList<Boolean>();
+        for(int i = 0; i < solution.getRoads().get(roadSelected).getDestinations().size(); i++)
+        {
+            if(i == firstClient)
+            {
+                newDestinations.add(secondClientDestinsation);
+            }
+            else if(i == secondClient)
+            {
+                newDestinations.add(firstClientDestinsation);
+            }
+            else
+            {
+                newDestinations.add(solution.getRoads().get(roadSelected).getDestinations().get(i));
+            }
+        }
+        newRoad.setDestinations(newDestinations);
+        int size = candidate.getARoad(roadSelected).getEdges().size();
+        for (int i = 0; i < size-1; i++) {
+            int time = newRoad.getTimeByIndex(i);
+            if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
+                System.out.println("conditions non respectees");
+                isRoadPossible.add(false);
+            }
+        }
+        if(isRoadPossible.contains(false))
+        {
+            System.out.println("trajet impossible");
+            return null;
+        }
+        else
+        {
+            System.out.println("Toutes les conditions sont respectees");
+            SolutionVisualization.DisplayGraph(solution.getConfig(), candidate);
+            return candidate;
+        }
     }
 
     // Exchange inter route

@@ -60,4 +60,5 @@ public class Client extends Destination {
     public int getDeliveryTime() {
         return deliveryTime;
     }
+
 }

@@ -21,7 +21,7 @@ public class Main {
         SolutionVisualization.DisplayGraph(config, solution);
         //TwoOpt.generateAllNeighbors(solution);
         for (int i = 1; i < solution.getARoad(0).getDestinations().size()-1 ; i++) {
-            Solution voisine = NeighboorOperation.RelocateIntra(solution, 0, i, 2);
+            Solution voisin = NeighboorOperation.RelocateIntra(solution, 0, i, 2);
         }
     }
 

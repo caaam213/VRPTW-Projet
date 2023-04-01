@@ -1,8 +1,11 @@
 package Metaheuristique;
+import Logistique.Client;
 import Logistique.Destination;
 
 import java.awt.*;
 import java.util.ArrayList;
+
+import static Utils.SolutionUtils.*;
 
 public class Road implements Cloneable{
     private int distance;
@@ -70,6 +73,18 @@ public class Road implements Cloneable{
         }
     }
 
+    public void addEdge(Destination destination, Edge edge) {
+
+        this.destinations.add(destination);
+        if (edge.getArriveClient() != null)
+        {
+            this.edges.add(edge);
+            distance += edge.getDistance();
+            time = edge.getTime();
+            capacityDelivered += edge.getQuantityDelivered();
+        }
+    }
+
     /**
      * Remove an edge to the road and update information
      * @param indexDest index of the edge to remove
@@ -85,12 +100,41 @@ public class Road implements Cloneable{
     public void removeDestinationToRoad(int indexDest) {
         Edge firstEdge = this.getEdges().get(indexDest);
         Edge secondEdge = this.getEdges().get(indexDest);
+        this.edges.remove(indexDest-1);
         this.edges.remove(indexDest);
-        this.edges.remove(indexDest+1);
         this.getDestinations().remove(indexDest);
         distance = distance - firstEdge.getDistance() - secondEdge.getDistance();
         time = edges.get(edges.size()-1).getTime();
         capacityDelivered = firstEdge.getQuantityDelivered() - secondEdge.getQuantityDelivered();
+    }
+
+    public Road addDestinationsAndUpdateEdgeToRoad(Solution sol, Destination destination, int indexDest) {
+        this.getDestinations().add(indexDest, destination);
+        Road newRoad = new Road();
+        int currentDistance = 0;
+        for( int i = 0; i < this.getEdges().size()+2; i++)
+        {
+            Destination firstDestination = this.getDestinations().get(i);
+            Destination secondDestination = this.getDestinations().get(i+1);
+            Edge edge = new Edge(firstDestination, secondDestination);
+            currentDistance = currentDistance + distanceBetweenTwoDestination(firstDestination, secondDestination);
+            edge.setDistance(distanceBetweenTwoDestination(firstDestination, secondDestination));
+            edge.setTime(currentDistance);
+            edge.setPosEdge(i);
+            if (secondDestination instanceof Client)
+                edge.setQuantityDelivered(((Client) secondDestination).getDemand());
+            newRoad.addEdge(firstDestination, edge);
+            //capacityRemained = sol.getConfig().getTruck().getCapacity() - newRoad.getCapacityDelivered();
+            //int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(firstDestination, secondDestination);
+            //newRoad = calculateRoad(secondDestination, newRoad.getTime(), distanceBetweenTwoDestinations, capacityRemained, newRoad, edge, i);
+        }
+        System.out.println("Edges : ");
+
+        for (Edge edge : newRoad.getEdges())
+        {
+            System.out.print(edge.toString());
+        }
+        return newRoad;
     }
 
 
