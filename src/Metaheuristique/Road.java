@@ -73,9 +73,8 @@ public class Road implements Cloneable{
         }
     }
 
-    public void addEdge(Destination destination, Edge edge) {
+    public void addEdge(Edge edge) {
 
-        this.destinations.add(destination);
         if (edge.getArriveClient() != null)
         {
             this.edges.add(edge);
@@ -108,7 +107,7 @@ public class Road implements Cloneable{
         capacityDelivered = firstEdge.getQuantityDelivered() - secondEdge.getQuantityDelivered();
     }
 
-    public Road addDestinationsAndUpdateEdgeToRoad(Solution sol, Destination destination, int indexDest) {
+    public Road addDestinationsAndUpdateEdgeToRoad(Destination destination, int indexDest) {
         this.getDestinations().add(indexDest, destination);
         Road newRoad = new Road();
         int currentDistance = 0;
@@ -123,19 +122,38 @@ public class Road implements Cloneable{
             edge.setPosEdge(i);
             if (secondDestination instanceof Client)
                 edge.setQuantityDelivered(((Client) secondDestination).getDemand());
-            newRoad.addEdge(firstDestination, edge);
+            newRoad.addDestinationsToRoad(firstDestination, edge);
             //capacityRemained = sol.getConfig().getTruck().getCapacity() - newRoad.getCapacityDelivered();
             //int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(firstDestination, secondDestination);
             //newRoad = calculateRoad(secondDestination, newRoad.getTime(), distanceBetweenTwoDestinations, capacityRemained, newRoad, edge, i);
         }
-        System.out.println("Edges : ");
-
-        for (Edge edge : newRoad.getEdges())
-        {
-            System.out.print(edge.toString());
-        }
+        newRoad.getDestinations().add(this.getDestinations().get(0));
         return newRoad;
     }
+
+    public Road constrcutEdgeToRoad() {
+        Road newRoad = new Road();
+        int currentDistance = 0;
+        for( int i = 0; i < this.getEdges().size(); i++)
+        {
+            Destination firstDestination = this.getDestinations().get(i);
+            Destination secondDestination = this.getDestinations().get(i+1);
+            Edge edge = new Edge(firstDestination, secondDestination);
+            currentDistance = currentDistance + distanceBetweenTwoDestination(firstDestination, secondDestination);
+            edge.setDistance(distanceBetweenTwoDestination(firstDestination, secondDestination));
+            edge.setTime(currentDistance);
+            edge.setPosEdge(i);
+            if (secondDestination instanceof Client)
+                edge.setQuantityDelivered(((Client) secondDestination).getDemand());
+            newRoad.addDestinationsToRoad(firstDestination, edge);
+            //capacityRemained = sol.getConfig().getTruck().getCapacity() - newRoad.getCapacityDelivered();
+            //int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(firstDestination, secondDestination);
+            //newRoad = calculateRoad(secondDestination, newRoad.getTime(), distanceBetweenTwoDestinations, capacityRemained, newRoad, edge, i);
+        }
+        newRoad.getDestinations().add(this.getDestinations().get(0));
+        return newRoad;
+    }
+
 
 
     public ArrayList<Edge> getEdges() {
