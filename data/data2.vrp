@@ -1,0 +1,18 @@
+NAME: data2.vrp
+COMMENT:
+TYPE: vrptw
+COORDINATES: cartesian
+NB_DEPOTS: 1
+NB_CLIENTS: 100
+MAX_QUANTITY: 60
+
+DATA_DEPOTS [idName x y readyTime dueTime]:
+d1 20 20 0 230
+
+DATA_CLIENTS [idName x y readyTime dueTime demand service]:
+c1 20 40 0 50 10 10
+c2 50 40 60 120 20 10
+c3 50 20 130 230 30 10
+c4 20 0 0 50 10 10
+c5 0 0 60 120 20 10
+c6 0 20 130 230 30 10

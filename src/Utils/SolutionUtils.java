@@ -230,7 +230,7 @@ public class SolutionUtils {
 
             } else {
                 // If the client can't be delivered, we add the depot to the road and we create a new road
-                int[] calculateTotalDistance = calculateTotalDistance(road, conf, distance);
+                int[] calculateTotalDistance = calculateDistanceBetweenTheLastClientAndDepot(road, conf, distance);
                 distanceBetweenTwoDestinations = calculateTotalDistance[1];
                 road = addInfoToRoad(conf, distanceBetweenTwoDestinations,road,edge,time+distanceBetweenTwoDestinations, posEdge);
 
@@ -251,7 +251,7 @@ public class SolutionUtils {
         }
         if (road.getDestinations().size() > 1)
         {
-            int[] calculateTotalDistance = calculateTotalDistance(road, conf, distance);
+            int[] calculateTotalDistance = calculateDistanceBetweenTheLastClientAndDepot(road, conf, distance);
             distanceBetweenTwoDestinations = calculateTotalDistance[1];
             road = addInfoToRoad(conf, distanceBetweenTwoDestinations,road,edge,time+distanceBetweenTwoDestinations, posEdge);
 
@@ -270,7 +270,7 @@ public class SolutionUtils {
      * @param distance : the distance
      * @return an array with the distance and the distance between two destinations
      */
-    public static int[] calculateTotalDistance(Road road, Configuration conf, int distance)
+    public static int[] calculateDistanceBetweenTheLastClientAndDepot(Road road, Configuration conf, int distance)
     {
         int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(
                 road.getDestinations().get(road.getDestinations().size()-1),
