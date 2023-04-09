@@ -6,7 +6,7 @@ import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 
 public class Main {
     public static void main(String[] args) {
-        Configuration config = new Configuration("101");
+        Configuration config = new Configuration("2");
         System.out.println("Nombre de vehicules minimal : " + config.getNumberOfMinimalVehicles());
         System.out.println("Solution aleatoire generee : ");
         Solution solution = SolutionUtils.generateRandomSolution(config, true);
@@ -23,10 +23,16 @@ public class Main {
         //TwoOptAndCrossExchange.runCrossExchange(solution, 2, 1, 4,0);
 
         //TwoOpt.generateAllNeighborsCrossExchange(solution);
-        //TwoOpt.generateAllNeighbors2Opt(solution);
+        //TwoOptAndCrossExchange.generateAllNeighbors2Opt(solution);
         /*for (int i = 1; i < solution.getARoad(0).getDestinations().size()-1 ; i++) {
             Solution voisine = NeighboorOperation.RelocateIntra(solution, 0, i, 2);
         }*/
+
+        //TwoOpt.generateAllNeighbors(solution);
+        /*for (int i = 1; i < solution.getARoad(0).getDestinations().size()-1 ; i++) {
+            Solution voisin = NeighboorOperation.RelocateIntra(solution, 0, i, 2);
+        }*/
+
     }
 
 }

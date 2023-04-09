@@ -123,15 +123,16 @@ public class SolutionUtils {
     private static int[] calculateInfos(Road road, Destination client, int time, int distance, int capacity, int posEdge)
     {
         int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), client);
+
         if(time+distanceBetweenTwoDestinations<client.getReadyTime())
             time = client.getReadyTime();
         else
             time += distanceBetweenTwoDestinations;
+        // No need to verify if time+distanceBetweenTwoDestinations > client.getDueTime() because it is already done in the method isClientCanBeDelivered
 
         if (client instanceof Client)
         {
-            int timeBetweenTwoDestinations = ((Client) client).getService()+distanceBetweenTwoDestinations;
-
+            time+= ((Client) client).getService();
             distance += distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), client);
             capacity -= ((Client) client).getDemand();
         }
