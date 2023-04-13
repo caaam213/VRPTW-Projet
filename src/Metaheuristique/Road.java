@@ -29,7 +29,6 @@ public class Road implements Cloneable{
         idRoad = nbRoad;
         nbRoad++;
     }
-
     public int getIdRoad() {
         return idRoad;
     }

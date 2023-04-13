@@ -2,18 +2,24 @@ package Metaheuristique;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import Graphics.SolutionVisualization;
 import Logistique.Client;
 import Logistique.Destination;
 
+import Metaheuristique.Taboo.Transformation;
 import Utils.SolutionUtils;
 public class NeighboorOperation {
 
+    static Transformation transformation;
+
 
     // Relocate intra route
-    public static Solution RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
+    public static HashMap<Solution, Transformation> RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
+        HashMap<Solution, Transformation> result = new HashMap<>();
+        transformation = new Transformation(indexClient, newIndexClient, roadSelected, roadSelected);
         // on récupère la route du trajet concerné
         Road newRoad = solution.getRoads().get(roadSelected).clone();
         // On recupère la destination du client
@@ -44,13 +50,16 @@ public class NeighboorOperation {
         else
         {
             System.out.println("Toutes les conditions sont respectees");
-            return candidate;
+            result.put(candidate, transformation);
+            return result;
         }
     }
 
     // Relocate inter routes
-    public static Solution RelocateInter(Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
+    public static HashMap<Solution, Transformation> RelocateInter(Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
     {
+        HashMap<Solution, Transformation> result = new HashMap<>();
+        transformation = new Transformation(indexClient, newIndexClient, firstClientRoad, secondClientRoad);
         // on récupère la route du trajet concerné
         Road newFirstRoad = solution.getRoads().get(firstClientRoad).clone();
         Road newSecondRoad = solution.getRoads().get(secondClientRoad).clone();
@@ -91,13 +100,16 @@ public class NeighboorOperation {
         else
         {
             System.out.println("Toutes les conditions sont respectees");
-            return candidate;
+            result.put(candidate, transformation);
+            return result;
         }
     }
 
     // Exchange intra route
-    public static Solution Exchange(Solution solution, int roadSelected, int firstClient, int secondClient)
+    public static HashMap<Solution, Transformation> Exchange(Solution solution, int roadSelected, int firstClient, int secondClient)
     {
+        HashMap<Solution, Transformation> result = new HashMap<>();
+        transformation = new Transformation(firstClient, secondClient,roadSelected, roadSelected );
         Road newRoad = solution.getRoads().get(roadSelected).clone();
         Solution candidate = solution.clone();
         // récupérer les destinations des deux clients à échanger
@@ -124,12 +136,16 @@ public class NeighboorOperation {
         {
             System.out.println("Toutes les conditions sont respectees");
             candidate.getRoads().set(roadSelected, newRoad);
-            return candidate;
+            result.put(candidate, transformation);
+            return result;
         }
     }
 
     // Exchange inter route
-    public static Solution ExchangeInter(Solution solution, int firstClientRoad, int secondClientRoad, int firstClient, int secondClient) {
+    public static HashMap<Solution, Transformation> ExchangeInter(Solution solution, int firstClientRoad, int secondClientRoad, int firstClient, int secondClient)
+    {
+        HashMap<Solution, Transformation> result = new HashMap<>();
+        transformation = new Transformation(firstClient, secondClient,firstClientRoad, secondClientRoad );
         Road newFirstRoad = solution.getRoads().get(firstClientRoad).clone();
         Road newSecondRoad = solution.getRoads().get(secondClientRoad).clone();
         Solution candidate = solution.clone();
@@ -167,7 +183,8 @@ public class NeighboorOperation {
             System.out.println("Toutes les conditions sont respectees");
             candidate.getRoads().set(firstClientRoad, newFirstRoad);
             candidate.getRoads().set(secondClientRoad, newSecondRoad);
-            return candidate;
+            result.put(candidate, transformation);
+            return result;
         }
     }
 }
