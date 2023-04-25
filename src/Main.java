@@ -4,6 +4,7 @@ import Logistique.Destination;
 import Metaheuristique.Edge;
 import Metaheuristique.NeighboorOperation;
 import Metaheuristique.Solution;
+import Metaheuristique.Taboo.TabooMethod;
 import Utils.SolutionUtils;
 import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 
@@ -19,7 +20,9 @@ public class Main {
         solution.displaySolution();
         SolutionVisualization.DisplayGraph(config, solution);
 
-        TwoOptAndCrossExchange.generateAllNeighborsCrossExchange(solution);
+        TabooMethod.TabouSearch(solution);
+
+        //TwoOptAndCrossExchange.generateAllNeighborsCrossExchange(solution);
 
         //TwoOptAndCrossExchange.generateAllNeighbors2Opt(solution);
         //solvoisine.displaySolution();
@@ -44,7 +47,6 @@ public class Main {
             SolutionVisualization.DisplayGraph(solution.getConfig(), voisin);
         }
          */
-
 
         /*for (int i = 1; i < solution.getARoad(0).getDestinations().size()-1 ; i++) {
             Solution voisin = NeighboorOperation.RelocateIntra(solution, 0, i, 2);
