@@ -38,23 +38,19 @@ public class NeighboorOperation {
         for (int i = 0; i < size-1; i++) {
             int time = newRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         if(isRoadPossible.contains(false))
         {
-            //System.out.println("trajet impossible");
+            System.out.println("trajet impossible");
             return null;
         }
         else
         {
-<<<<<<< HEAD
-            //System.out.println("Toutes les conditions sont respectees");
-=======
             System.out.println("Toutes les conditions sont respectees");
             //SolutionVisualization.DisplayGraph(candidate);
->>>>>>> 6b27ceda0c15d3efc49dfc0f23cf1a1ac756ef44
             result.put(candidate, transformation);
             return result;
         }
@@ -86,25 +82,25 @@ public class NeighboorOperation {
         for (int i = 0; i < sizeFirst-1; i++) {
             int time = newFirstRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newFirstRoad.getEdges().get(i).getDepartClient(), newFirstRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         for (int i = 0; i < sizeSecond-1; i++) {
             int time = newFirstRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newSecondRoad.getEdges().get(i).getDepartClient(), newSecondRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         if(isRoadPossible.contains(false))
         {
-            //System.out.println("trajet impossible");
+            System.out.println("trajet impossible");
             return null;
         }
         else
         {
-            //System.out.println("Toutes les conditions sont respectees");
+            System.out.println("Toutes les conditions sont respectees");
             result.put(candidate, transformation);
             return result;
         }
@@ -128,18 +124,18 @@ public class NeighboorOperation {
         for (int i = 0; i < size-1; i++) {
             int time = newRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         if(isRoadPossible.contains(false))
         {
-            //System.out.println("trajet impossible");
+            System.out.println("trajet impossible");
             return null;
         }
         else
         {
-            //System.out.println("Toutes les conditions sont respectees");
+            System.out.println("Toutes les conditions sont respectees");
             candidate.getRoads().set(roadSelected, newRoad);
             result.put(candidate, transformation);
             return result;
@@ -167,25 +163,25 @@ public class NeighboorOperation {
         for (int i = 0; i < sizeFirst-1; i++) {
             int time = newFirstRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newFirstRoad.getEdges().get(i).getDepartClient(), newFirstRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         for (int i = 0; i < sizeSecond-1; i++) {
             int time = newFirstRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newSecondRoad.getEdges().get(i).getDepartClient(), newSecondRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         if(isRoadPossible.contains(false))
         {
-            //System.out.println("trajet impossible");
+            System.out.println("trajet impossible");
             return null;
         }
         else
         {
-            //System.out.println("Toutes les conditions sont respectees");
+            System.out.println("Toutes les conditions sont respectees");
             candidate.getRoads().set(firstClientRoad, newFirstRoad);
             candidate.getRoads().set(secondClientRoad, newSecondRoad);
             result.put(candidate, transformation);
