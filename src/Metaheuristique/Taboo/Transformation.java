@@ -2,19 +2,23 @@ package Metaheuristique.Taboo;
 
 import Logistique.Client;
 import Logistique.Configuration;
+import Metaheuristique.Edge;
 import Metaheuristique.Solution;
 
 import java.util.ArrayList;
 
 public class Transformation {
 
-    int firstClient;
-    int secondClient;
-    int nbClients;
+    static int clientFirstIndex;
+    static int clientNewIndex;
+    static int clientFirstRoad;
+    static int clientNewRoad;
 
-    public Transformation(int a, int b) {
-        firstClient = a;
-        secondClient = b;
+    public Transformation(int clientFirstI, int clientNewI, int clientFirstR, int clientNewR) {
+        clientFirstIndex = clientFirstI;
+        clientNewIndex = clientNewI;
+        clientFirstRoad = clientFirstR;
+        clientNewRoad = clientNewR;
     }
 }
 
