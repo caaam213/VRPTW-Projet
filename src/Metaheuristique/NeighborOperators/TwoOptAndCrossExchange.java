@@ -50,10 +50,10 @@ public class TwoOptAndCrossExchange {
     {
         Edge edgeChanged = new Edge(departClient, arriveClient);
         if (SolutionUtils.isClientCanBeDelivered(departClient, arriveClient, time, capacityRemained))
-            roadToReturn = SolutionUtils.calculateRoad(arriveClient, time, distance, capacityRemained, roadToReturn, edgeChanged, posEdge1);
+            roadToReturn = SolutionUtils.calculateRoad(arriveClient, time, distance, capacityRemained, roadToReturn, edgeChanged, posEdge1, true);
         else
         {
-            System.out.println("Null");
+            //System.out.println("Null");
             return null;
         }
         return roadToReturn;
@@ -124,9 +124,22 @@ public class TwoOptAndCrossExchange {
                 distance = roadToReturn.getDistance();
                 capacityRemained = roadToReturn.getCapacityDelivered();
 
-                Edge edge = edges.get(i);
-                departClient = edge.getArriveClient();
-                arriveClient = edge.getDepartClient();
+                try
+                {
+                    Edge edge = edges.get(i);
+                    departClient = edge.getArriveClient();
+                    arriveClient = edge.getDepartClient();
+                }
+                catch (Exception e)
+                {
+                    for (Edge edge : edges)
+                    {
+                        System.out.println(edge.toString());
+                    }
+                    System.exit(0);
+                }
+
+
                 roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, i);
                 if (roadToReturn == null)
                     return null;
@@ -141,7 +154,7 @@ public class TwoOptAndCrossExchange {
         arriveClient = edge2.getArriveClient();
         if (arriveClient instanceof Depot)
         {
-            roadToReturn = addDepotToSwappedRoad(roadToReturn, solution, distance);
+            roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
             return roadToReturn;
         }
 
@@ -161,7 +174,7 @@ public class TwoOptAndCrossExchange {
 
             if (arriveClient instanceof Depot)
             {
-                roadToReturn = addDepotToSwappedRoad(roadToReturn, solution, distance);
+                roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
                 return roadToReturn;
             }
             time = roadToReturn.getTime();
@@ -190,16 +203,17 @@ public class TwoOptAndCrossExchange {
         if (Math.abs(indexEdge1-indexEdge2)<=1)
             return null;
 
-        if (indexEdge1 > solution.getRoads().get(roadSelected).getEdges().size()-2 ||
-                indexEdge2 > solution.getRoads().get(roadSelected).getEdges().size()-1)
-            return null;
-
         if (indexEdge1 > indexEdge2)
         {
             int indexEdge = indexEdge1;
             indexEdge1 = indexEdge2;
             indexEdge2 = indexEdge;
         }
+
+        if (indexEdge1 >= solution.getRoads().get(roadSelected).getEdges().size()-2 ||
+                indexEdge2 >= solution.getRoads().get(roadSelected).getEdges().size()-1)
+            return null;
+
 
         // Get edges to swap by their position
         Edge edge1 = solution.getRoads().get(roadSelected).getEdges().get(indexEdge1);
@@ -210,11 +224,11 @@ public class TwoOptAndCrossExchange {
         Road road = roads.get(roadSelected).clone();
         ArrayList<Edge> edges = (ArrayList<Edge>) road.getEdges().clone();
 
-        int posEdge1 = edge1.getPosEdge();
-        int posEdge2 = edge2.getPosEdge();
+        /*int posEdge1 = edge1.getPosEdge();
+        int posEdge2 = edge2.getPosEdge();*/
 
         // Swap edges in the road
-        Road roadGenerated = swapEdges(solution, edges, roadSelected, posEdge1, posEdge2, edge1, edge2);
+        Road roadGenerated = swapEdges(solution, edges, roadSelected, indexEdge1, indexEdge2, edge1, edge2);
 
         if (roadGenerated == null)
             return null;
@@ -226,20 +240,6 @@ public class TwoOptAndCrossExchange {
 
         return candidateSolution;
 
-    }
-
-    private static Road addDepotToSwappedRoad(Road roadToReturn, Solution solution, int distance)
-    {
-        int[] calculateTotalDistance = SolutionUtils.calculateDistanceBetweenTheLastClientAndDepot(roadToReturn, solution.getConfig(), distance);
-        int distanceBetweenTwoDestinations = calculateTotalDistance[1];
-
-        // If the depot is not added, then it is added
-        if (!roadToReturn.getEdges().get(roadToReturn.getEdges().size()-1).getArriveClient().getIdName().equals(solution.getConfig().getCentralDepot().getIdName()))
-        {
-            Edge endEdge = new Edge(roadToReturn.getDestinations().get(roadToReturn.getDestinations().size()-1), solution.getConfig().getCentralDepot());
-            roadToReturn = SolutionUtils.addInfoToRoad(solution.getConfig(), distanceBetweenTwoDestinations,roadToReturn,endEdge, roadToReturn.getTime()+distanceBetweenTwoDestinations, roadToReturn.getDestinations().size()-1);
-        }
-        return roadToReturn;
     }
 
     private static Road exchangeEdgeBetweenTwoRoads(Solution solution,  int roadSelected,Road otherRoad,
@@ -278,7 +278,7 @@ public class TwoOptAndCrossExchange {
         // Exchange the clients between the two roads
         if (arriveClient instanceof Depot)
         {
-            roadToReturn = addDepotToSwappedRoad(roadToReturn, solution, distance);
+            roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
             return roadToReturn;
         }
         roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, posEdge1);
@@ -294,7 +294,7 @@ public class TwoOptAndCrossExchange {
 
             if (arriveClient instanceof Depot)
             {
-                roadToReturn = addDepotToSwappedRoad(roadToReturn, solution, distance);
+                roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
                 return roadToReturn;
             }
 
@@ -305,7 +305,11 @@ public class TwoOptAndCrossExchange {
             roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, i);
 
             if (roadToReturn == null)
+            {
+                //System.out.println("La route est null");
                 return null;
+            }
+
 
         }
 
@@ -322,7 +326,7 @@ public class TwoOptAndCrossExchange {
             return null;
 
         // Get roads
-        ArrayList<Road> roads = (ArrayList<Road>) solutionInit.getRoads().clone();
+        ArrayList<Road> roads = (ArrayList<Road>) solutionInit.getRoads();
         Road road1 = roads.get(roadSelected1);
         Road road2 = roads.get(roadSelected2);
 
@@ -380,7 +384,7 @@ public class TwoOptAndCrossExchange {
                                 " et : "+solution.getRoads().get(selectedRoad).getEdges().get(j));
                         //solutionNeighbour.displaySolution();
                         solutionNeighbour.getRoads().get(selectedRoad).toString();
-                        SolutionVisualization.DisplayGraph(solution.getConfig(), solutionNeighbour);
+                        SolutionVisualization.DisplayGraph(solutionNeighbour, "Solution 2-opt");
                     }
                     iter++;
 
@@ -420,7 +424,9 @@ public class TwoOptAndCrossExchange {
                             System.out.println("----------------------------------------------------");
                             solutionNeighbour.getRoads().get(selectedRoad2).toString();
                             System.out.println("Distance totale parcourue : "+solutionNeighbour.getTotalDistanceCovered());
-                            SolutionVisualization.DisplayGraph(solution.getConfig(), solutionNeighbour);
+                            //SolutionVisualization.DisplayGraph(solutionNeighbour, "Cross-exchange");
+                            SolutionUtils.verifyIfAClientAppearsTwoTimesInARoad(solution, "Cross-exchange done");
+
                             System.out.println("FIIIIN");
 
                         }

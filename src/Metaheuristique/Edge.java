@@ -57,6 +57,14 @@ public class Edge {
                 this.arriveClient.getIdName().equals(destination2.getIdName()));
     }
 
+    public Edge clone() {
+        Edge edge = new Edge(this.departClient, this.arriveClient, this.distance);
+        edge.setPosEdge(this.posEdge);
+        edge.setQuantityDelivered(this.quantityDelivered);
+        edge.setTime(this.time);
+        return edge;
+    }
+
 
 
     public int getDistance() {

@@ -29,4 +29,9 @@ public abstract class Destination {
     public GPSCoordinates getLocalisation() {
         return localisation;
     }
+
+    public Destination clone() {
+        return new Destination(localisation, idName, readyTime, dueTime) {
+        };
+    }
 }

@@ -16,7 +16,10 @@ public class Solution implements Cloneable {
     int nbClients = 0;
     static int idSolution = 0;
 
+    int idSolutionCreated;
+
     public Solution() {
+        idSolutionCreated = idSolution;
         idSolution += 1;
     }
 
@@ -73,13 +76,11 @@ public class Solution implements Cloneable {
         System.out.println("Il y a "+roads.size()+" routes");
         System.out.println("Distance totale parcourue : "+totalDistanceCovered+"km");
         System.out.println();
+        int countRoad = 1;
         for(Road road : roads)
         {
-            System.out.println("Route : "+road.getIdRoad());
+            System.out.println("Route : "+countRoad);
             System.out.println("Temps : "+road.getTime());
-
-            int quantityDelivered = config.getTruck().getCapacity()-road.getCapacityDelivered();
-            System.out.println("Quantite livree : "+quantityDelivered+"kg");
             System.out.println("Destination : ");
             for (Destination destination : road.getDestinations())
             {
@@ -93,21 +94,44 @@ public class Solution implements Cloneable {
             {
                 System.out.print(edge.toString());
             }
+            System.out.println("Distance parcourue : "+road.getDistance()+"km");
             System.out.println("");
             System.out.println("Fin de la route");
             System.out.println("");
+            countRoad++;
         }
 
     }
 
+    public void removeRoadByItsId(int idRoad)
+    {
+        int index = 0;
+        for (Road road : roads)
+        {
+            if (road.getIdRoad() == idRoad)
+            {
+                roads.remove(index);
+                break;
+            }
+            index++;
+        }
+    }
 
+    public int getIdSolutionCreated() {
+        return idSolutionCreated;
+    }
 
     public Solution clone()
     {
         Solution newSolution = new Solution();
         newSolution.setConfig(this.getConfig());
         newSolution.setTotalDistanceCovered();
-        newSolution.setRoads((ArrayList<Road>) this.getRoads().clone());
+        ArrayList<Road> clonedList = new ArrayList<Road>();
+        for (Road road : this.getRoads()) {
+            clonedList.add(road.clone());
+        }
+        newSolution.setRoads(clonedList);
+
         return newSolution;
     }
 

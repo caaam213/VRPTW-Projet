@@ -66,9 +66,13 @@ public class TabooMethod {
                                 continue;
                             else {
                                 // getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
-                                HashMap<Solution, Transformation> candidats = getNeighbor(k, initialSol, i, i, l, j);
+                                HashMap<Solution, Transformation> candidats = (HashMap<Solution, Transformation>) getNeighbor(k, initialSol, i, i, l, j);
+                                HashMap<Solution, Transformation> candidatValid = new HashMap<>();
                                     if(candidats != null)
-                                        neighbors.add(candidats);
+                                    {
+                                        candidatValid = (HashMap<Solution, Transformation>) getNeighbor(k, initialSol, i, i, l, j).clone();
+                                        neighbors.add(candidatValid);
+                                    }
                                     else
                                         continue;
                             }
@@ -105,8 +109,8 @@ public class TabooMethod {
     private static ArrayList<HashMap<Solution, Transformation> > AllNeighbors(Solution initialSol)
     {
         ArrayList<HashMap<Solution, Transformation> > list1 = searchAllCandidatesIntra(initialSol);
-        ArrayList<HashMap<Solution, Transformation> > list2 = searchAllCandidatesIntra(initialSol);
-        list1.addAll(list2);
+        //ArrayList<HashMap<Solution, Transformation> > list2 = searchAllCandidatesIntra(initialSol);
+        //list1.addAll(list2);
         return list1;
     }
 

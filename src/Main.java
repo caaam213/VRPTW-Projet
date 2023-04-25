@@ -1,16 +1,25 @@
 import Graphics.SolutionVisualization;
 import Logistique.Configuration;
-import Logistique.Destination;
-import Metaheuristique.Edge;
-import Metaheuristique.NeighboorOperation;
+import Metaheuristique.Genetics.GeneticMethod;
 import Metaheuristique.Solution;
-import Metaheuristique.Taboo.TabooMethod;
 import Utils.SolutionUtils;
-import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 
 public class Main {
+    public static void displayExecutionTime(long duration)
+    {
+        // Convert time
+        int heures = (int) (duration / 3600000000000L);
+        int minutes = (int) (duration / 60000000000L) % 60;
+        int secondes = (int) (duration / 1000000000L) % 60;
+
+        // Display time
+        System.out.printf("Temps d'execution : %d heures, %d minutes, %d secondes", heures, minutes, secondes);
+        System.out.println();
+    }
+
     public static void main(String[] args) {
-        Configuration config = new Configuration("2");
+<<<<<<< HEAD
+        Configuration config = new Configuration("111");
         System.out.println("Nombre de vehicules minimal : " + config.getNumberOfMinimalVehicles());
         System.out.println("Solution aleatoire generee : ");
         Solution solution = SolutionUtils.generateRandomSolution(config, true);
@@ -20,7 +29,9 @@ public class Main {
         solution.displaySolution();
         SolutionVisualization.DisplayGraph(config, solution);
 
-        TabooMethod.TabouSearch(solution);
+        Solution bestSol = TabooMethod.TabouSearch(solution);
+        SolutionVisualization.DisplayGraph(config, bestSol);
+
 
         //TwoOptAndCrossExchange.generateAllNeighborsCrossExchange(solution);
 
@@ -51,6 +62,18 @@ public class Main {
         /*for (int i = 1; i < solution.getARoad(0).getDestinations().size()-1 ; i++) {
             Solution voisin = NeighboorOperation.RelocateIntra(solution, 0, i, 2);
         }*/
+=======
+        long startTime = System.nanoTime();
+        // Write code
+        Configuration config = new Configuration("111");
+        Solution solution = SolutionUtils.generateRandomSolution(config, false);
+
+        long endTime = System.nanoTime();
+        long duration = endTime - startTime;
+        displayExecutionTime(duration);
+
+
+>>>>>>> 6b27ceda0c15d3efc49dfc0f23cf1a1ac756ef44
 
     }
 
