@@ -1,7 +1,9 @@
 package Utils;
 
+import Graphics.SolutionVisualization;
 import Logistique.Client;
 import Logistique.Configuration;
+import Logistique.Depot;
 import Logistique.Destination;
 import Metaheuristique.Edge;
 import Metaheuristique.Road;
@@ -67,7 +69,8 @@ public class SolutionUtils {
 
         if (arriveClient instanceof Client)
         {
-            if (time + distanceBetweenTwoDestination(startClient, arriveClient)+ ((Client) arriveClient).getDeliveryTime() > arriveClient.getDueTime())
+            int timeCalculated = time + distanceBetweenTwoDestination(startClient, arriveClient)+((Client) arriveClient).getService();
+            if (timeCalculated > arriveClient.getDueTime())
             {
                 return false;
             }
@@ -110,6 +113,23 @@ public class SolutionUtils {
         return client;
     }
 
+    public static int calculateTime(Destination client, int time, int distanceBetweenTwoDestinations)
+    {
+        if(time+distanceBetweenTwoDestinations<client.getReadyTime())
+            time = client.getReadyTime();
+        else
+            time += distanceBetweenTwoDestinations;
+        if (client instanceof Client)
+        {
+            time+= ((Client) client).getService();
+        }
+        else
+        {
+            time = time + distanceBetweenTwoDestinations;
+        }
+        return time;
+    }
+
     /**
      * Calculate the time, distance, capacity and distance between two destinations
      * @param road : the road
@@ -120,26 +140,19 @@ public class SolutionUtils {
      * @param posEdge : the position of the edge
      * @return an array with the time, distance, capacity and distance between two destinations
      */
-    private static int[] calculateInfos(Road road, Destination client, int time, int distance, int capacity, int posEdge)
+    public static int[] calculateInfos(Road road, Destination client, int time, int distance, int capacity, int posEdge)
     {
         int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), client);
 
-        if(time+distanceBetweenTwoDestinations<client.getReadyTime())
-            time = client.getReadyTime();
-        else
-            time += distanceBetweenTwoDestinations;
+        time = calculateTime(client,time,distanceBetweenTwoDestinations);
         // No need to verify if time+distanceBetweenTwoDestinations > client.getDueTime() because it is already done in the method isClientCanBeDelivered
 
         if (client instanceof Client)
         {
-            time+= ((Client) client).getService();
-            distance += distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), client);
+            distance += distanceBetweenTwoDestinations;
             capacity -= ((Client) client).getDemand();
         }
-        else
-        {
-            time = time + distanceBetweenTwoDestinations;
-        }
+
         return new int[]{time, distance, capacity, distanceBetweenTwoDestinations};
     }
 
@@ -154,7 +167,7 @@ public class SolutionUtils {
      * @param posEdge : the position of the edge
      * @return the road
      */
-    public static Road calculateRoad(Destination client, int time, int distance, int capacity, Road road, Edge edge, int posEdge)
+    public static Road calculateRoad(Destination client, int time, int distance, int capacity, Road road, Edge edge, int posEdge, boolean addClientToRoad)
     {
         int[] infos = calculateInfos(road, client, time, distance, capacity, posEdge);
         time = infos[0];
@@ -169,12 +182,39 @@ public class SolutionUtils {
             edge.setQuantityDelivered(((Client) client).getDemand());
         edge.setPosEdge(posEdge);
 
-        road.addDestinationsToRoad(client,edge);
+        if (addClientToRoad)
+        {
+            road.addDestinationsToRoad(client,edge);
+        }
+        else
+        {
+            road.getEdges().add(edge);
+            distance += edge.getDistance();
+            time = edge.getTime();
+            capacity += edge.getQuantityDelivered();
+        }
+
         road.setTime(time);
         road.setDistance(distance);
         road.setCapacityDelivered(capacity);
 
         return road;
+    }
+
+    private static Destination getNearestClient(ArrayList<Client> clientsNotDeliveredToManageDueTime, Destination startClient, int time, int capacity)
+    {
+        Client nearestClient = getRandomClient(clientsNotDeliveredToManageDueTime);
+        int distance = Integer.MAX_VALUE;
+        for (Client client : clientsNotDeliveredToManageDueTime)
+        {
+            int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(startClient, client);
+            if (distanceBetweenTwoDestinations < distance && isClientCanBeDelivered(startClient, client, time, capacity))
+            {
+                distance = distanceBetweenTwoDestinations;
+                nearestClient = client;
+            }
+        }
+        return nearestClient;
     }
 
 
@@ -183,10 +223,10 @@ public class SolutionUtils {
     /**
      * Generate a random solution
      * @param conf : the configuration
-     * @param generateSmarterSolution : if we want to generate a smarter solution
+     * @param generateVeryRandomSolution : if we want to generate a smarter solution
      * @return the solution generated
      */
-    public static Solution generateRandomSolution(Configuration conf, boolean generateSmarterSolution) {
+    public static Solution generateRandomSolution(Configuration conf, boolean generateVeryRandomSolution) {
         // Initialization
         ArrayList<Client> clientsNotDelivered = (ArrayList<Client>)conf.getListClients().clone();
         Solution solution = new Solution();
@@ -201,18 +241,23 @@ public class SolutionUtils {
         road.addDestinationsToRoad(conf.getCentralDepot(),edge); //Add depot to the road
         int posEdge = 0;
 
+        Client client;
         while (clientsNotDelivered.size() > 0) {
-            Client client = getRandomClient(clientsNotDelivered);
 
             // If we want to generate a smarter solution
-            if (generateSmarterSolution)
+            if (generateVeryRandomSolution)
             {
+                client = getRandomClient(clientsNotDelivered);
                 ArrayList<Client> clientsNotDeliveredToManageDueTime = (ArrayList<Client>)clientsNotDelivered.clone();
                 client = selectClientMoreThoroughly(clientsNotDeliveredToManageDueTime,
                         road.getDestinations().get(road.getDestinations().size()-1),
                         client,
                         time,
                         capacityRemained);
+            }
+            else
+            {
+                client = (Client) getNearestClient(clientsNotDelivered, road.getDestinations().get(road.getDestinations().size()-1), time, capacityRemained);
             }
 
 
@@ -221,7 +266,7 @@ public class SolutionUtils {
                 // If time is before the ready time, we wait until the ready time
 
 
-                road = calculateRoad(client, time, distance, capacityRemained, road, edge, posEdge);
+                road = calculateRoad(client, time, distance, capacityRemained, road, edge, posEdge, true);
                 posEdge++;
                 edge = new Edge(client);
                 clientsNotDelivered.remove(client);
@@ -305,5 +350,101 @@ public class SolutionUtils {
 
         return road;
     }
+
+    public static Road addDepotToSwappedRoad(Road roadToReturn, Solution solution, int distance)
+    {
+        int[] calculateTotalDistance = SolutionUtils.calculateDistanceBetweenTheLastClientAndDepot(roadToReturn, solution.getConfig(), distance);
+        int distanceBetweenTwoDestinations = calculateTotalDistance[1];
+
+        // If the depot is not added, then it is added
+        if (!roadToReturn.getEdges().get(roadToReturn.getEdges().size()-1).getArriveClient().getIdName().equals(solution.getConfig().getCentralDepot().getIdName()))
+        {
+            Edge endEdge = new Edge(roadToReturn.getDestinations().get(roadToReturn.getDestinations().size()-1), solution.getConfig().getCentralDepot());
+            roadToReturn = SolutionUtils.addInfoToRoad(solution.getConfig(), distanceBetweenTwoDestinations,roadToReturn,endEdge, roadToReturn.getTime()+distanceBetweenTwoDestinations, roadToReturn.getDestinations().size()-1);
+        }
+        return roadToReturn;
+    }
+
+    public static void verifyIfAClientAppearsTwoTimesInARoad(Solution solution, String functionName)
+    {
+        int roadIndex = 0;
+        for (Road road : solution.getRoads())
+        {
+            for (int i = 0; i < road.getDestinations().size(); i++)
+            {
+                for (int j = i+1; j < road.getDestinations().size(); j++)
+                {
+                    if (road.getDestinations().get(i) instanceof Depot)
+                        continue;
+                    if (road.getDestinations().get(i).getIdName().equals(road.getDestinations().get(j).getIdName()))
+                    {
+                        System.out.println("Le client " + road.getDestinations().get(i).getIdName() + " apparait deux fois dans la route " + roadIndex + " dans la fonction " + functionName);
+                        //SolutionVisualization.DisplayGraph(solution, "functionName "+road.getDestinations().get(i).getIdName());
+                    }
+                }
+            }
+            roadIndex++;
+        }
+    }
+
+    public static void verifyIfAclientIsNotDelivered(Solution solution, String functionName)
+    {
+        ArrayList<String> clientsNotDelivered = new ArrayList<>();
+        for (Client client : solution.getConfig().getListClients())
+        {
+            clientsNotDelivered.add(client.getIdName());
+        }
+        for (Road road : solution.getRoads())
+        {
+            for (Destination client : road.getDestinations())
+            {
+                if (client instanceof Depot)
+                    continue;
+                if (clientsNotDelivered.contains(client.getIdName()))
+                    clientsNotDelivered.remove(client.getIdName());
+            }
+        }
+        if (clientsNotDelivered.size() > 0)
+        {
+            System.out.println("Il y a " + clientsNotDelivered.size() + " clients non livres dans la fonction " + functionName);
+            for (String client : clientsNotDelivered)
+            {
+                System.out.println("Le client " + client + " n'est pas livre");
+            }
+        }
+        else
+        {
+            System.out.println("Tous les clients sont livres");
+        }
+    }
+
+    public static boolean verifyIfTheSolutionIsInList(ArrayList<Solution> listSolution, Solution solution)
+    {
+        ArrayList<ArrayList<String>> listIdNameForSolution = new ArrayList<>();
+        for (Road road : solution.getRoads())
+        {
+            listIdNameForSolution.add(road.returnListOfIdClient());
+        }
+
+        boolean isSolutionInList = true;
+        for (Solution solutionInList : listSolution)
+        {
+            isSolutionInList = true;
+
+            for (Road road : solutionInList.getRoads())
+            {
+
+                if (!listIdNameForSolution.contains(road.returnListOfIdClient()))
+                {
+                    isSolutionInList = false;
+                    break;
+                }
+            }
+            if (!isSolutionInList)
+                return false;
+        }
+        return true;
+    }
+
 
 }

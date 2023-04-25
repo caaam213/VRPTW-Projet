@@ -45,7 +45,7 @@ public class NeighboorOperation {
         else
         {
             System.out.println("Toutes les conditions sont respectees");
-            SolutionVisualization.DisplayGraph(solution.getConfig(), candidate);
+            //SolutionVisualization.DisplayGraph(candidate);
             return candidate;
         }
     }
@@ -111,7 +111,7 @@ public class NeighboorOperation {
         else
         {
             System.out.println("Toutes les conditions sont respectees");
-            SolutionVisualization.DisplayGraph(solution.getConfig(), candidate);
+            //SolutionVisualization.DisplayGraph(candidate);
             return candidate;
         }
     }

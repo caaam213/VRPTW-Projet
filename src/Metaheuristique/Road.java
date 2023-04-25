@@ -6,6 +6,8 @@ import java.awt.*;
 import java.util.ArrayList;
 
 import static Utils.SolutionUtils.*;
+import Graphics.SolutionVisualization;
+import Utils.SolutionUtils;
 
 public class Road implements Cloneable{
     private int distance;
@@ -20,6 +22,8 @@ public class Road implements Cloneable{
     private static int nbRoad = 1;
     private int idRoad;
 
+    private String color;
+
     public Road() {
         distance = 0;
         time = 0;
@@ -28,6 +32,7 @@ public class Road implements Cloneable{
         edges = new ArrayList<Edge>();
         idRoad = nbRoad;
         nbRoad++;
+        color = SolutionVisualization.generateRandomColor();
     }
 
     public int getIdRoad() {
@@ -85,6 +90,13 @@ public class Road implements Cloneable{
         }
     }
 
+    public void addEdgeToRoad(Edge edge) {
+        this.edges.add(edge);
+        distance += edge.getDistance();
+        time = edge.getTime();
+        capacityDelivered += edge.getQuantityDelivered();
+    }
+
     /**
      * Remove an edge to the road and update information
      * @param indexDest index of the edge to remove
@@ -97,7 +109,8 @@ public class Road implements Cloneable{
         capacityDelivered -= edge.getQuantityDelivered();
     }
 
-    public void removeDestinationToRoad(int indexDest) {
+    public void removeDestinationToRoad(int indexDest)
+    {
         Edge firstEdge = this.getEdges().get(indexDest);
         Edge secondEdge = this.getEdges().get(indexDest);
         this.edges.remove(indexDest-1);
@@ -106,6 +119,70 @@ public class Road implements Cloneable{
         distance = distance - firstEdge.getDistance() - secondEdge.getDistance();
         time = edges.get(edges.size()-1).getTime();
         capacityDelivered = firstEdge.getQuantityDelivered() - secondEdge.getQuantityDelivered();
+    }
+
+    private int[] getDistanceAndCapacityByIndex(int indexDest)
+    {
+        int distance = 0;
+        int capacityDelivered = 0;
+        for (Edge edge : this.getEdges())
+        {
+            if (edge.getPosEdge() == indexDest)
+            {
+               distance += edge.getDistance();
+               capacityDelivered += edge.getQuantityDelivered();
+            }
+        }
+        return new int[]{distance, capacityDelivered};
+    }
+
+
+
+    public void removeDestinationToRoadAndUpdateInfo(int indexDest)
+    {
+        time = 0;
+        distance = 0;
+        capacityDelivered = 0;
+        edges.clear();
+
+        //destinations.remove(indexDest);
+        ArrayList<Destination> newDestinations = new ArrayList<Destination>();
+        String idName = destinations.get(indexDest).getIdName();
+        for (int i = 0; i<destinations.size(); i++)
+        {
+            if (idName != destinations.get(i).getIdName())
+                newDestinations.add(destinations.get(i).clone());
+        }
+        setDestinations(newDestinations);
+
+        int distanceCalculated;
+        int capacityDeliveredCalculated;
+        //Reconstruct the edges
+        for(int i = 1; i<destinations.size(); i++)
+        {
+
+            Destination startDestination = destinations.get(i-1);
+            Destination endDestination = destinations.get(i);
+
+            if(startDestination.getIdName() == endDestination.getIdName())
+                break;
+            Edge edge = new Edge(startDestination, endDestination);
+
+            distanceCalculated = distanceBetweenTwoDestination(startDestination, endDestination);
+            distance += distanceCalculated;
+            edge.setDistance(distanceCalculated);
+
+            time = SolutionUtils.calculateTime(endDestination, time,distanceCalculated);
+            edge.setTime(time);
+
+            capacityDeliveredCalculated = endDestination instanceof Client ? ((Client) endDestination).getDemand() : 0;
+            capacityDelivered += capacityDeliveredCalculated;
+            edge.setQuantityDelivered(capacityDeliveredCalculated);
+
+            edge.setPosEdge(i-1);
+            edges.add(edge);
+
+        }
     }
 
     public Road addDestinationsAndUpdateEdgeToRoad(Solution sol, Destination destination, int indexDest) {
@@ -164,6 +241,10 @@ public class Road implements Cloneable{
         return time;
     }
 
+    public void setIdRoad(int idRoad) {
+        this.idRoad = idRoad;
+    }
+
     public int getTimeByIndex(int indexDest) {
         return this.getEdges().get(indexDest).getTime();
     }
@@ -181,6 +262,14 @@ public class Road implements Cloneable{
         this.capacityDelivered = capacity;
     }
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
     public Road clone() {
         Road road = null;
         try {
@@ -189,7 +278,19 @@ public class Road implements Cloneable{
             throw new RuntimeException(e);
         }
         road.setEdges((ArrayList<Edge>) edges.clone());
-        road.setDestinations((ArrayList<Destination>) destinations.clone());
+        ArrayList<Destination> destinationsCloned = new ArrayList<Destination>();
+        for (Destination destination : destinations)
+        {
+            destinationsCloned.add(destination.clone());
+        }
+
+        ArrayList<Edge> edgesCloned = new ArrayList<Edge>();
+        for (Edge edge : road.getEdges())
+        {
+            edgesCloned.add(edge.clone());
+        }
+        road.setDestinations(destinationsCloned);
+        road.setColor(color);
         return road;
     }
 
@@ -207,6 +308,32 @@ public class Road implements Cloneable{
         }
         return str;
     }
+
+    public ArrayList<String> returnListOfIdClient()
+    {
+        ArrayList<String> listOfIdClient = new ArrayList<String>();
+        for (Destination destination : destinations)
+        {
+            if (destination instanceof Client)
+            {
+                listOfIdClient.add(destination.getIdName());
+            }
+        }
+        return listOfIdClient;
+
+    }
+
+    public boolean verifyIfEdgeInRoad(String startId, String endId)
+    {
+
+        for (Edge edgeInRoad : edges)
+        {
+            if (edgeInRoad.getDepartClient().getIdName().equals(startId) && edgeInRoad.getArriveClient().getIdName().equals(endId))
+                return true;
+        }
+        return false;
+    }
+
 
 
 }

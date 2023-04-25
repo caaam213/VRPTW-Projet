@@ -117,6 +117,14 @@ public class Configuration {
         return listClients;
     }
 
+    public ArrayList<String> getListClientsName() {
+        ArrayList<String> listClientsName = new ArrayList<String>();
+        for (Client client : listClients) {
+            listClientsName.add(client.getIdName());
+        }
+        return listClientsName;
+    }
+
     /**
      * @return
      */

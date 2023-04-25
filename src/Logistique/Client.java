@@ -5,7 +5,6 @@ public class Client extends Destination {
     int demand;
     int service;
     int nbClients;
-    int deliveryTime;
     boolean isTheClientServed;
     int readyTime;
     int dueTime;
@@ -40,7 +39,6 @@ public class Client extends Destination {
                 "demand=" + demand +
                 ", service=" + service +
                 ", nbClients=" + nbClients +
-                ", deleveryTime=" + deliveryTime +
                 ", isTheClientServed=" + isTheClientServed +
                 ", localisation=" + super.localisation +
                 ", idName=" + super.idName +
@@ -57,8 +55,10 @@ public class Client extends Destination {
         return nbClients;
     }
 
-    public int getDeliveryTime() {
-        return deliveryTime;
+
+    @Override
+    public Client clone() {
+        return new Client(localisation, idName, readyTime, dueTime, demand, service);
     }
 
 }

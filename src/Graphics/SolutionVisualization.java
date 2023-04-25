@@ -2,18 +2,24 @@ package Graphics;
 
 import Logistique.Client;
 import Logistique.Configuration;
+import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import com.mxgraph.layout.mxCompactTreeLayout;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
+import org.apache.commons.lang3.ArrayUtils;
+import org.jgrapht.Graph;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Hashtable;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
+
 
 public class SolutionVisualization {
     static final int MULTIPLIER = 10;
@@ -22,7 +28,14 @@ public class SolutionVisualization {
     static final int WIDTHFRAME = 1000;
     static final int HEIGHTFRAME = 1000;
 
+    static Frame frame;
+
+    static mxGraph graph;
+
+    static Object[] vertexes;
+
     static int nbRoadsMaxToDisplay = -1; // The number of roads to display for each client if -1, display all the roads
+
 
     /**
      * Generate a random color in hexadecimal
@@ -45,6 +58,8 @@ public class SolutionVisualization {
     }
 
 
+
+
     /**
      * Configure the style of the vertexes
      * @param graph the graph
@@ -61,19 +76,21 @@ public class SolutionVisualization {
 
     /**
      * Display the graph of the solution in a frame
-     * @param config : the configuration
      * @param solution : the solution to display
      */
-    public static void DisplayGraph(Configuration config, Solution solution) {
+    public static void DisplayGraph(Solution solution, String title) {
+        Configuration config = solution.getConfig();
+
         // Create a frame
         final JFrame frame = new JFrame();
         frame.setSize(WIDTHFRAME, HEIGHTFRAME);
+        frame.setTitle(title);
         JPanel panel = new JPanel();
         panel.setSize(frame.getMaximumSize().width,
                 frame.getMaximumSize().height);
 
         // Create a graph
-        final mxGraph graph = new mxGraph();
+        graph = new mxGraph();
         Object parent = graph.getDefaultParent();
         graph.getModel().beginUpdate();
 
@@ -83,7 +100,7 @@ public class SolutionVisualization {
 
         try {
             // Create the vertex array
-            Object[] vertexes = new Object[101];
+            vertexes = new Object[101];
             int i = 1;
             Object vertex = graph.insertVertex(parent, null, config.getCentralDepot().getIdName(),
                     config.getCentralDepot().getLocalisation().getX()*MULTIPLIER,
@@ -102,7 +119,7 @@ public class SolutionVisualization {
             // Create the edges between the vertexes according to the solution
 
             for (Road road : solution.getRoads()) {
-                String color = generateRandomColor();
+                String color = road.getColor();
                 for (i = 0; i < road.getDestinations().size() - 1; i++) {
                     String d1 = road.getDestinations().get(i).getIdName();
                     String d2 = road.getDestinations().get(i + 1).getIdName();
@@ -141,7 +158,83 @@ public class SolutionVisualization {
         frame.add(panel);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
+
+    public static void removeAllEdges(mxGraph graph) {
+        Object[] edges = graph.getChildEdges(graph.getDefaultParent());
+        graph.removeCells(edges);
+    }
+
+    /*public static void updateGraphNode(Solution solution) {
+        // Supprime toutes les arêtes du graphe
+        removeAllEdges(graph);
+
+        for (Road road : solution.getRoads()) {
+            String color = road.getColor();
+            for (int i = 0; i < road.getDestinations().size() - 1; i++) {
+                String d1 = road.getDestinations().get(i).getIdName();
+                String d2 = road.getDestinations().get(i + 1).getIdName();
+                int d1Index = d1.equals("d1") ? 0 : Integer.parseInt(d1.substring(1, d1.length()));
+                int d2Index = d2.equals("d1") ? 0 : Integer.parseInt(d2.substring(1, d2.length()));
+                graph.insertEdge(graph.getDefaultParent(), null, "", vertexes[d1Index], vertexes[d2Index], "strokeColor="+color);
+            }
+            nbRoadsMaxToDisplay--;
+            if (nbRoadsMaxToDisplay == 0) {
+                break;
+            }
+        }
+
+        Object[] edges = graph.getChildEdges(graph.getDefaultParent());
+        List<mxCell[]> edgesToAdd = new ArrayList<>();
+        List<String> edgesToAddColor = new ArrayList<>();
+        List<Object> edgesToRemove = new ArrayList<>(Arrays.asList(graph.getChildEdges(graph.getDefaultParent())));
+
+        for (Road road : solution.getRoads()) {
+            String color = road.getColor();
+            for (int i = 0; i < road.getDestinations().size() - 1; i++) {
+                String d1 = road.getDestinations().get(i).getIdName();
+                String d2 = road.getDestinations().get(i + 1).getIdName();
+                int d1Index = d1.equals("d1") ? 0 : Integer.parseInt(d1.substring(1, d1.length()));
+                int d2Index = d2.equals("d1") ? 0 : Integer.parseInt(d2.substring(1, d2.length()));
+
+                boolean edgeExists = false;
+                for (Object edge : edges) {
+                    if (edge == null || !(edge instanceof mxCell)) {
+                        continue;
+                    }
+                    if (!edgesToRemove.contains(edge))
+                        continue;
+
+                    mxCell source = (mxCell) graph.getModel().getTerminal(edge, true);
+                    mxCell target = (mxCell) graph.getModel().getTerminal(edge, false);
+
+                    if ((source == vertexes[d1Index] && target == vertexes[d2Index])) {
+                        edgeExists = true;
+                        edgesToRemove.remove(edge);
+                        break;
+                    }
+                }
+                if (!edgeExists) {
+                    edgesToAdd.add(new mxCell[]{(mxCell) vertexes[d1Index], (mxCell) vertexes[d2Index]});
+                    edgesToAddColor.add(color);
+                }
+            }
+        }
+
+        ArrayList<Object> graphCells = new ArrayList<Object>(Arrays.asList(graph.getChildCells(graph.getDefaultParent())));
+        for (int i = graphCells.size() - 1; i >= 0; i--) {
+                if (edgesToRemove.contains(graphCells.get(i)))
+                    graph.removeCells(new Object[]{graphCells.get(i)});
+        }
+
+
+        for (int i = 0; i < edgesToAdd.size(); i++) {
+            graph.insertEdge(graph.getDefaultParent(), null, "", edgesToAdd.get(i)[0], edgesToAdd.get(i)[1], "strokeColor=" + edgesToAddColor.get(i));
+        }
+
+    }*/
+
 
 
 }

@@ -15,4 +15,9 @@ public class Depot extends Destination {
                 ", dueTime=" + super.dueTime +
                 '}';
     }
+
+    @Override
+    public Depot clone() {
+        return new Depot(localisation, idName, readyTime, dueTime);
+    }
 }
