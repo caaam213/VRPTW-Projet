@@ -22,6 +22,7 @@ public class Main {
         // Write code
         Configuration config = new Configuration("111");
         Solution solution = SolutionUtils.generateRandomSolution(config, false);
+        GeneticMethod.runGeneticMethod(solution, 150, 500, 0.33F, 10);
 
         long endTime = System.nanoTime();
         long duration = endTime - startTime;

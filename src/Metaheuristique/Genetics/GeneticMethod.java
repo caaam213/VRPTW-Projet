@@ -293,7 +293,7 @@ public class GeneticMethod {
             }
 
             bestKnown = selectBestSolution(populationk);
-            //SolutionVisualization.updateGraphNode(bestKnown);
+            SolutionVisualization.updateGraphNode(bestKnown);
             System.out.println("Fitness initiale : "+solution.getTotalDistanceCovered());
             System.out.println("Nombre de vehicules initiaux : "+solution.getRoads().size());
             System.out.println("Pour l'iteration "+k+" la meilleure solution a une fitness de "+
