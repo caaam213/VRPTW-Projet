@@ -1,12 +1,7 @@
 package Metaheuristique.Taboo;
-import Graphics.SolutionVisualization;
-import Logistique.Client;
-import Logistique.Destination;
-import Metaheuristique.Edge;
-import Metaheuristique.NeighboorOperation;
+import Metaheuristique.NeighborOperators.Exchange;
+import Metaheuristique.NeighborOperators.Relocate;
 import Metaheuristique.Solution;
-import Metaheuristique.Solution;
-import Metaheuristique.Taboo.Transformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,27 +9,60 @@ import java.util.Map;
 
 public class TabooMethod {
 
-    static ArrayList<Transformation>  tabooList = new ArrayList<Transformation>();
     static int tabuSize = 10;
 
     public static int fitness(Solution solution){
         return solution.getTotalDistanceCovered();
     }
 
+    public static Result methodeDeDesecente(Solution x0, ArrayList<Transformation> tabooList)
+    {
+        int i = -1;
+        Solution xi = x0.clone();
+        Solution xi1 = new Solution();
+        ArrayList<HashMap<Solution, Transformation>> voisinsXi1 = new ArrayList<HashMap<Solution, Transformation>>();
+        while( fitness(xi1) < fitness(xi))
+        {
+            ArrayList<HashMap<Solution, Transformation>> voisins = AllNeighbors(xi);
+            ArrayList<Solution> candidats = SolutionWithoutForbidenTransformation(voisins, tabooList);
+            for(Solution candidat : candidats)
+            {
+                if (fitness(candidat) < fitness(xi1))
+                {
+                    xi1 = candidat.clone();
+                    voisinsXi1 = voisins;
+                }
+            }
+            xi = xi1;
+            i = i + 1;
+        }
+        Transformation t = null;
+        for( HashMap<Solution, Transformation> voisin : voisinsXi1)
+        {
+            for (Map.Entry mapentry  : voisin.entrySet())
+            {
+                if( xi1 == mapentry.getKey())
+                    t = (Transformation) mapentry.getValue();
+            }
+        }
+        Result result = new Result(xi1, t);
+        return result;
+    }
+
     public static HashMap<Solution, Transformation> getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient) {
         HashMap<Solution, Transformation> sol = new HashMap<>();
         switch(method) {
             case 1:
-                sol = NeighboorOperation.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
+                sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
                 break;
             case 2:
-                sol = NeighboorOperation.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
+                sol = Exchange.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
                 break;
             case 3:
-                sol = NeighboorOperation.RelocateIntra(solution, firstClientRoad, newIndexClient, indexClient);
+                sol = Relocate.RelocateIntra(solution, firstClientRoad, newIndexClient, indexClient);
                 break;
             case 4:
-                sol = NeighboorOperation.RelocateInter(solution, firstClientRoad, secondClientRoad, newIndexClient, indexClient);
+                sol = Relocate.RelocateInter(solution, firstClientRoad, secondClientRoad, newIndexClient, indexClient);
                 break;
             case 5:
                 //sol = TwoOpt.runTwoOptInter(solution, firstClientRoad, newIndexClient, indexClient);
@@ -129,59 +157,34 @@ public class TabooMethod {
     }
 
 
-    public static Solution TabouSearch(Solution initialSol){
-        // Xmin
-        Solution bestSolution = initialSol.clone();
-        // Fmin <- F(X0)
-        int bestDistance = fitness(bestSolution);
+    public static Solution TabouSearch(Solution x0){
+        Solution xmin = x0.clone();
+        int fmin = fitness(xmin);
         int maxIter = 1000;
-        // Xi
-        Solution currentX = initialSol.clone();
-        // Xi+1
-        Solution nextX = initialSol.clone();
+        ArrayList<Transformation> tabooList = new ArrayList<>();
+        Solution xi = x0.clone();
+        Result xi1 = new Result();
         for ( int i =0; i< maxIter; i++)
         {
-            ArrayList<HashMap<Solution, Transformation>> voisins = AllNeighbors(currentX);
-            ArrayList<Solution> candidats = SolutionWithoutForbidenTransformation(voisins, tabooList);
-            nextX = candidats.get(0);
-            // Xi+1 celui qui a la meilleure fitness parmi les candidats
-            for(Solution currentcandidat : candidats)
-            {
-                if (fitness(currentcandidat) < fitness(nextX))
-                {
-                    nextX = currentcandidat.clone();
-                }
-            }
-            // F = F(Xi+1) - F(Xi)
-            int lembdaF = fitness(nextX) - fitness(currentX);
-            Transformation t = null;
-            if(lembdaF>=0){
-                for( HashMap<Solution, Transformation> voisin : voisins)
-                {
-                    for (Map.Entry mapentry  : voisin.entrySet())
-                    {
-                        if( nextX == (Solution)mapentry.getKey())
-                             t = (Transformation) mapentry.getValue();
-                    }
-                }
-                tabooList.add(t);
+            xi1 = methodeDeDesecente(xi, tabooList);
+            int lambdaF = fitness(xi1.solution) - fitness(xi);
+            if(lambdaF>=0){
+                tabooList.add(xi1.transformation);
             }
 
-            if(fitness(nextX) < fitness(bestSolution))
+            if(fitness(xi1.solution) < fitness(xmin))
             {
-                // Xmin <- Xi+1
-                bestSolution = nextX;
-                // Fmin <- F(Xi+1)
-                bestDistance = fitness(nextX);
+                xmin = xi1.solution.clone();
+                fmin = fitness(xmin);
             }
 
-            // On retire le dernier élément ajouté
+            // On retire le dernier élément ajouté si la liste est pleine
             if (tabooList.size() > tabuSize) {
                 tabooList.remove(0);
             }
 
-            currentX = nextX;
+            xi = xi1.solution.clone();
         }
-        return bestSolution;
+        return xmin;
     }
 }
