@@ -1,5 +1,10 @@
 package Metaheuristique.Taboo;
-import Metaheuristique.NeighborOperators.NeighboorOperation;
+
+
+import Metaheuristique.MetaheuristiquesUtils;
+import Metaheuristique.NeighborOperators.Exchange;
+import Metaheuristique.NeighborOperators.Relocate;
+
 import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 import Metaheuristique.Solution;
 
@@ -7,19 +12,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static Metaheuristique.MetaheuristiquesUtils.AllNeighbors;
 
 public class TabooMethod {
 
-    static ArrayList<Transformation>  tabooList = new ArrayList<Transformation>();
     static int tabuSize = 10;
 
-    public static int fitness(Solution solution){
-        return solution.getTotalDistanceCovered();
-    }
 
 
-    private static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<HashMap<Solution, Transformation>> voisins, ArrayList<Transformation> tabooList )
+    public static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<HashMap<Solution, Transformation>> voisins, ArrayList<Transformation> tabooList)
     {
         ArrayList<Solution> cleanVoisins = new ArrayList<>();
         for( HashMap<Solution, Transformation> voisin : voisins)
@@ -34,59 +34,34 @@ public class TabooMethod {
     }
 
 
-    public static Solution TabouSearch(Solution initialSol){
-        // Xmin
-        Solution bestSolution = initialSol.clone();
-        // Fmin <- F(X0)
-        int bestDistance = fitness(bestSolution);
+    public static Solution TabouSearch(Solution x0){
+        Solution xmin = x0.clone();
+        int fmin = MetaheuristiquesUtils.fitness(xmin);
         int maxIter = 1000;
-        // Xi
-        Solution currentX = initialSol.clone();
-        // Xi+1
-        Solution nextX = initialSol.clone();
+        ArrayList<Transformation> tabooList = new ArrayList<>();
+        Solution xi = x0.clone();
+        Result xi1 = new Result();
         for ( int i =0; i< maxIter; i++)
         {
-            ArrayList<HashMap<Solution, Transformation>> voisins = AllNeighbors(currentX);
-            ArrayList<Solution> candidats = SolutionWithoutForbidenTransformation(voisins, tabooList);
-            nextX = candidats.get(0);
-            // Xi+1 celui qui a la meilleure fitness parmi les candidats
-            for(Solution currentcandidat : candidats)
-            {
-                if (fitness(currentcandidat) < fitness(nextX))
-                {
-                    nextX = currentcandidat.clone();
-                }
-            }
-            // F = F(Xi+1) - F(Xi)
-            int lembdaF = fitness(nextX) - fitness(currentX);
-            Transformation t = null;
-            if(lembdaF>=0){
-                for( HashMap<Solution, Transformation> voisin : voisins)
-                {
-                    for (Map.Entry mapentry  : voisin.entrySet())
-                    {
-                        if( nextX == (Solution)mapentry.getKey())
-                             t = (Transformation) mapentry.getValue();
-                    }
-                }
-                tabooList.add(t);
+            xi1 = MetaheuristiquesUtils.methodeDeDesecente(xi, tabooList);
+            int lambdaF = MetaheuristiquesUtils.fitness(xi1.solution) - MetaheuristiquesUtils.fitness(xi);
+            if(lambdaF>=0){
+                tabooList.add(xi1.transformation);
             }
 
-            if(fitness(nextX) < fitness(bestSolution))
+            if(MetaheuristiquesUtils.fitness(xi1.solution) < MetaheuristiquesUtils.fitness(xmin))
             {
-                // Xmin <- Xi+1
-                bestSolution = nextX;
-                // Fmin <- F(Xi+1)
-                bestDistance = fitness(nextX);
+                xmin = xi1.solution.clone();
+                fmin = MetaheuristiquesUtils.fitness(xmin);
             }
 
-            // On retire le dernier élément ajouté
+            // On retire le dernier élément ajouté si la liste est pleine
             if (tabooList.size() > tabuSize) {
                 tabooList.remove(0);
             }
 
-            currentX = nextX;
+            xi = xi1.solution.clone();
         }
-        return bestSolution;
+        return xmin;
     }
 }

@@ -1,27 +1,79 @@
 package Metaheuristique;
 
-import Metaheuristique.NeighborOperators.NeighboorOperation;
+import Metaheuristique.NeighborOperators.Exchange;
+import Metaheuristique.NeighborOperators.Relocate;
 import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
+import Metaheuristique.Taboo.Result;
+import Metaheuristique.Taboo.TabooMethod;
 import Metaheuristique.Taboo.Transformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MetaheuristiquesUtils {
+    public static int fitness(Solution solution){
+        return solution.getTotalDistanceCovered();
+    }
+
+    public static Result methodeDeDesecente(Solution x0, ArrayList<Transformation> tabooList)
+    {
+        int i = -1;
+        Solution xi = x0.clone();
+        Solution xi1 = new Solution();
+        ArrayList<HashMap<Solution, Transformation>> voisinsXi1 = new ArrayList<HashMap<Solution, Transformation>>();
+        while( fitness(xi1) < fitness(xi))
+        {
+            ArrayList<HashMap<Solution, Transformation>> voisins = AllNeighbors(xi);
+            if (tabooList.size()!=0)
+            {
+                ArrayList<Solution> candidats = TabooMethod.SolutionWithoutForbidenTransformation(voisins, tabooList);
+
+            }
+            else
+            {
+                //ArrayList<Solution> candidats;
+                //candidats = voisins;
+
+            }
+            /*for(Solution candidat : candidats)
+            {
+                if (fitness(candidat) < fitness(xi1))
+                {
+                    xi1 = candidat.clone();
+                    voisinsXi1 = voisins;
+                }
+            }
+            xi = xi1;
+            i = i + 1;*/
+        }
+        Transformation t = null;
+        for( HashMap<Solution, Transformation> voisin : voisinsXi1)
+        {
+            for (Map.Entry mapentry  : voisin.entrySet())
+            {
+                if( xi1 == mapentry.getKey())
+                    t = (Transformation) mapentry.getValue();
+            }
+        }
+        Result result = new Result(xi1, t);
+        return result;
+    }
+
     public static HashMap<Solution, Transformation> getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient) {
         HashMap<Solution, Transformation> sol = new HashMap<>();
         switch(method) {
             case 1:
-                sol = NeighboorOperation.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
+                sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
                 break;
             case 2:
-                sol = NeighboorOperation.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
+                sol = Exchange.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
                 break;
             case 3:
-                sol = NeighboorOperation.RelocateIntra(solution, firstClientRoad, newIndexClient, indexClient);
+                sol = Relocate.RelocateIntra(solution, firstClientRoad, newIndexClient, indexClient);
                 break;
             case 4:
-                sol = NeighboorOperation.RelocateInter(solution, firstClientRoad, secondClientRoad, newIndexClient, indexClient);
+                sol = Relocate.RelocateInter(solution, firstClientRoad, secondClientRoad, newIndexClient, indexClient);
                 break;
             case 5:
                 sol = TwoOptAndCrossExchange.runTwoOpt(solution, firstClientRoad, newIndexClient, indexClient);
@@ -93,7 +145,7 @@ public class MetaheuristiquesUtils {
         return neighbors;
     }
 
-    public static ArrayList<HashMap<Solution, Transformation> > AllNeighbors(Solution initialSol)
+    private static ArrayList<HashMap<Solution, Transformation> > AllNeighbors(Solution initialSol)
     {
         ArrayList<HashMap<Solution, Transformation> > list1 = searchAllCandidatesIntra(initialSol);
         //ArrayList<HashMap<Solution, Transformation> > list2 = searchAllCandidatesIntra(initialSol);
