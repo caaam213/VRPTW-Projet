@@ -3,6 +3,7 @@ package Metaheuristique.NeighborOperators;
 import Logistique.Destination;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
+import Metaheuristique.Taboo.Result;
 import Metaheuristique.Taboo.Transformation;
 import Utils.SolutionUtils;
 
@@ -15,8 +16,8 @@ public class Relocate {
 
 
     // Relocate intra route
-    public static HashMap<Solution, Transformation> RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
-        HashMap<Solution, Transformation> result = new HashMap<>();
+    public static Result RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
+        Result result;
         transformation = new Transformation(indexClient, newIndexClient, roadSelected, roadSelected);
         // on récupère la route du trajet concerné
         Road newRoad = solution.getRoads().get(roadSelected).clone();
@@ -49,15 +50,15 @@ public class Relocate {
         {
             //System.out.println("Toutes les conditions sont respectees");
             //SolutionVisualization.DisplayGraph(candidate);
-            result.put(candidate, transformation);
+            result = new Result(candidate, transformation);
             return result;
         }
     }
 
     // Relocate inter routes
-    public static HashMap<Solution, Transformation> RelocateInter(Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
+    public static Result RelocateInter(Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
     {
-        HashMap<Solution, Transformation> result = new HashMap<>();
+        Result result;
         transformation = new Transformation(indexClient, newIndexClient, firstClientRoad, secondClientRoad);
         // on récupère la route du trajet concerné
         Road newFirstRoad = solution.getRoads().get(firstClientRoad).clone();
@@ -99,7 +100,7 @@ public class Relocate {
         else
         {
             //System.out.println("Toutes les conditions sont respectees");
-            result.put(candidate, transformation);
+            result = new Result(candidate, transformation);
             return result;
         }
     }

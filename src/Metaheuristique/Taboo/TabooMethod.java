@@ -20,10 +20,10 @@ public class TabooMethod {
         int i = -1;
         Solution xi = x0.clone();
         Solution xi1 = new Solution();
-        ArrayList<HashMap<Solution, Transformation>> voisinsXi1 = new ArrayList<HashMap<Solution, Transformation>>();
-        while( fitness(xi1) < fitness(xi))
+        ArrayList<Result> voisinsXi1 = new ArrayList<Result>();
+        do
         {
-            ArrayList<HashMap<Solution, Transformation>> voisins = AllNeighbors(xi);
+            ArrayList<Result> voisins = AllNeighbors(xi);
             ArrayList<Solution> candidats = SolutionWithoutForbidenTransformation(voisins, tabooList);
             for(Solution candidat : candidats)
             {
@@ -35,22 +35,20 @@ public class TabooMethod {
             }
             xi = xi1;
             i = i + 1;
-        }
+        } while ( fitness(xi1) < fitness(xi));
         Transformation t = null;
-        for( HashMap<Solution, Transformation> voisin : voisinsXi1)
+        for( Result voisin : voisinsXi1)
         {
-            for (Map.Entry mapentry  : voisin.entrySet())
-            {
-                if( xi1 == mapentry.getKey())
-                    t = (Transformation) mapentry.getValue();
-            }
+            if( xi1 == voisin.getSolution())
+                t = voisin.getTransformation();
+
         }
         Result result = new Result(xi1, t);
         return result;
     }
 
-    public static HashMap<Solution, Transformation> getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient) {
-        HashMap<Solution, Transformation> sol = new HashMap<>();
+    public static Result getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient) {
+        Result sol = new Result();
         switch(method) {
             case 1:
                 sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
@@ -77,45 +75,36 @@ public class TabooMethod {
         return sol;
     }
 
-    private static ArrayList<HashMap<Solution, Transformation> > searchAllCandidatesIntra(Solution initialSol) {
-        ArrayList<HashMap<Solution, Transformation>> neighbors = new ArrayList<>();
+    private static ArrayList<Result> searchAllCandidatesIntra(Solution initialSol) {
+        ArrayList<Result> neighbors = new ArrayList<>();
         int[] intraMethods = {1, 3, 5};
         // Pour chaque méthode de voisinage possible
         for(int k : intraMethods) {
-            // Pour chaque route
+        // Pour chaque route
             for(int i = 0; i < initialSol.getRoads().size() ; i++) {
-                // Pour une destination j sauf dépot départ et arrivée
+            // Pour une destination j sauf dépot départ et arrivée
                 for (int j = 1; j < initialSol.getARoad(i).getDestinations().size()-1; j++)
                 {
                     if(initialSol.getARoad(i).getDestinations().size()-2 > 1) {
                         // Pour chaque destination l sauf dépot départ et arrivée
-                        for (int l = j; l < initialSol.getARoad(i).getDestinations().size()-1; l++) {
-                            if(l == j)
-                                continue;
-                            else {
-                                // getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
-                                HashMap<Solution, Transformation> candidats = (HashMap<Solution, Transformation>) getNeighbor(k, initialSol, i, i, l, j);
-                                HashMap<Solution, Transformation> candidatValid = new HashMap<>();
-                                    if(candidats != null)
-                                    {
-                                        candidatValid = (HashMap<Solution, Transformation>) getNeighbor(k, initialSol, i, i, l, j).clone();
-                                        neighbors.add(candidatValid);
-                                    }
-                                    else
-                                        continue;
+                        for (int l = j+1; l < initialSol.getARoad(i).getDestinations().size()-1; l++) {
+                            // getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
+                            Result candidats = getNeighbor(k, initialSol, i, i, l, j);
+                            if(candidats != null)
+                            {
+                                Result candidatValid = candidats;
+                                neighbors.add(candidatValid);
                             }
                         }
                     }
-                    else
-                        continue;
                 }
             }
         }
         return neighbors;
     }
 
-    private static ArrayList<HashMap<Solution, Transformation> > searchAllCandidatesInter(Solution initialSol) {
-        ArrayList<HashMap<Solution, Transformation> > neighbors = new ArrayList<>();
+    private static ArrayList<Result> searchAllCandidatesInter(Solution initialSol) {
+        ArrayList<Result> neighbors = new ArrayList<>();
         int[] interMethods = {2, 4, 6};
         // Pour chaque méthode de voisinage possible
         for(int k : interMethods) {
@@ -134,24 +123,21 @@ public class TabooMethod {
         return neighbors;
     }
 
-    private static ArrayList<HashMap<Solution, Transformation> > AllNeighbors(Solution initialSol)
+    private static ArrayList<Result> AllNeighbors(Solution initialSol)
     {
-        ArrayList<HashMap<Solution, Transformation> > list1 = searchAllCandidatesIntra(initialSol);
-        //ArrayList<HashMap<Solution, Transformation> > list2 = searchAllCandidatesIntra(initialSol);
+        ArrayList<Result> list1 = searchAllCandidatesIntra(initialSol);
+        //ArrayList<Result> list2 = searchAllCandidatesIntra(initialSol);
         //list1.addAll(list2);
         return list1;
     }
 
-    private static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<HashMap<Solution, Transformation>> voisins, ArrayList<Transformation> tabooList )
+    private static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<Result> voisins, ArrayList<Transformation> tabooList )
     {
         ArrayList<Solution> cleanVoisins = new ArrayList<>();
-        for( HashMap<Solution, Transformation> voisin : voisins)
+        for( Result voisin : voisins)
         {
-            for (Map.Entry mapentry  : voisin.entrySet())
-            {
-                if(!tabooList.contains((Transformation)mapentry.getValue()))
-                    cleanVoisins.add((Solution)mapentry.getKey());
-            }
+            if(!tabooList.contains(voisin.getTransformation()))
+                cleanVoisins.add(voisin.getSolution());
         }
         return cleanVoisins;
     }
