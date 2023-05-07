@@ -7,14 +7,17 @@ import Logistique.Destination;
 import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
+import Metaheuristique.Taboo.Transformation;
 import Utils.SolutionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Class to manage 2-opt and cross-exchange neighbor operators
  */
 public class TwoOptAndCrossExchange {
+
 
     /**
      * Get all destinations which are stable in the solution
@@ -197,8 +200,10 @@ public class TwoOptAndCrossExchange {
      * @param indexEdge2 Position of the second edge to swap
      * @return Solution with edges swapped
      */
-    public static Solution runTwoOpt(Solution solution, int roadSelected, int indexEdge1, int indexEdge2)
+    public static HashMap<Solution, Transformation> runTwoOpt(Solution solution, int roadSelected, int indexEdge1, int indexEdge2)
     {
+        HashMap<Solution, Transformation> result = new HashMap<>();
+        Transformation transformation = new Transformation(-1, -1, roadSelected, roadSelected, indexEdge1, indexEdge2); // TODO : Add transformation
         // Edges verification
         if (Math.abs(indexEdge1-indexEdge2)<=1)
             return null;
@@ -209,11 +214,6 @@ public class TwoOptAndCrossExchange {
             indexEdge1 = indexEdge2;
             indexEdge2 = indexEdge;
         }
-
-        if (indexEdge1 >= solution.getRoads().get(roadSelected).getEdges().size()-2 ||
-                indexEdge2 >= solution.getRoads().get(roadSelected).getEdges().size()-1)
-            return null;
-
 
         // Get edges to swap by their position
         Edge edge1 = solution.getRoads().get(roadSelected).getEdges().get(indexEdge1);
@@ -238,7 +238,8 @@ public class TwoOptAndCrossExchange {
         candidateSolution.getRoads().set(roadSelected, roadGenerated);
         candidateSolution.setTotalDistanceCovered();
 
-        return candidateSolution;
+        result.put(candidateSolution, transformation);
+        return result;
 
     }
 
@@ -319,11 +320,22 @@ public class TwoOptAndCrossExchange {
 
     }
 
-    public static Solution runCrossExchange(Solution solutionInit, int roadSelected1, int roadSelected2, int indexEdge1, int indexEdge2)
+    public static HashMap<Solution, Transformation> runCrossExchange(Solution solutionInit, int roadSelected1, int roadSelected2, int indexEdge1, int indexEdge2)
     {
         // Road verification
         if (roadSelected1 == roadSelected2)
             return null;
+
+        if (roadSelected1 == roadSelected2 || (indexEdge1 == 0&&indexEdge2==0))
+            return null;
+        if (indexEdge1==0 && indexEdge2==solutionInit.getRoads().get(roadSelected2).getEdges().size()-1)
+            return null;
+        if (indexEdge2==0 && indexEdge1==solutionInit.getRoads().get(roadSelected1).getEdges().size()-1)
+            return null;
+
+        HashMap<Solution, Transformation> result = new HashMap<>();
+        Transformation transformation = new Transformation(-1, -1, roadSelected1, roadSelected2, indexEdge1, indexEdge2); // TODO : Add transformation
+
 
         // Get roads
         ArrayList<Road> roads = (ArrayList<Road>) solutionInit.getRoads();
@@ -352,8 +364,9 @@ public class TwoOptAndCrossExchange {
         candidateSolution.getRoads().set(roadSelected2, road2Generated);
 
         candidateSolution.setTotalDistanceCovered();
+        result.put(candidateSolution, transformation);
 
-        return candidateSolution;
+        return result;
 
 
 
@@ -376,7 +389,8 @@ public class TwoOptAndCrossExchange {
                 for (int j = i+2; j < solution.getRoads().get(selectedRoad).getEdges().size() ; j++)
                 {
                     System.out.println("Iteration : "+iter);
-                    Solution solutionNeighbour = TwoOptAndCrossExchange.runTwoOpt(solution, selectedRoad, i, j);
+                    HashMap<Solution, Transformation> map = TwoOptAndCrossExchange.runTwoOpt(solution, selectedRoad, i, j);
+                    Solution solutionNeighbour = map.keySet().iterator().next();
                     if (solutionNeighbour != null && solutionNeighbour.getRoads().get(selectedRoad)!=null)
                     {
                         System.out.println("Road selected : "+selectedRoad);
@@ -405,14 +419,8 @@ public class TwoOptAndCrossExchange {
                 {
                     for (int j =0; j < solution.getRoads().get(selectedRoad2).getEdges().size(); j++)
                     {
-                        //Verified condition
-                        if (selectedRoad == selectedRoad2 || (i == 0&&j==0))
-                            continue;
-                        if (i==0 && j==solution.getRoads().get(selectedRoad2).getEdges().size()-1)
-                            continue;
-                        if (j==0 && i==solution.getRoads().get(selectedRoad).getEdges().size()-1)
-                            continue;
-                        Solution solutionNeighbour = runCrossExchange(solution, selectedRoad, selectedRoad2, i, j);
+
+                        Solution solutionNeighbour = runCrossExchange(solution, selectedRoad, selectedRoad2, i, j).keySet().iterator().next();
                         if (solutionNeighbour != null)
                         {
                             System.out.println("Roads selected : "+selectedRoad+" et "+selectedRoad2);

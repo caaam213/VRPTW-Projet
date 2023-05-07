@@ -1,16 +1,13 @@
 package Metaheuristique.Taboo;
-import Graphics.SolutionVisualization;
-import Logistique.Client;
-import Logistique.Destination;
-import Metaheuristique.Edge;
-import Metaheuristique.NeighboorOperation;
+import Metaheuristique.NeighborOperators.NeighboorOperation;
+import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 import Metaheuristique.Solution;
-import Metaheuristique.Solution;
-import Metaheuristique.Taboo.Transformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static Metaheuristique.MetaheuristiquesUtils.AllNeighbors;
 
 public class TabooMethod {
 
@@ -21,94 +18,6 @@ public class TabooMethod {
         return solution.getTotalDistanceCovered();
     }
 
-    public static HashMap<Solution, Transformation> getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient) {
-        HashMap<Solution, Transformation> sol = new HashMap<>();
-        switch(method) {
-            case 1:
-                sol = NeighboorOperation.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
-                break;
-            case 2:
-                sol = NeighboorOperation.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
-                break;
-            case 3:
-                sol = NeighboorOperation.RelocateIntra(solution, firstClientRoad, newIndexClient, indexClient);
-                break;
-            case 4:
-                sol = NeighboorOperation.RelocateInter(solution, firstClientRoad, secondClientRoad, newIndexClient, indexClient);
-                break;
-            case 5:
-                //sol = TwoOpt.runTwoOptInter(solution, firstClientRoad, newIndexClient, indexClient);
-                break;
-            case 6:
-                //sol = TwoOpt.runTwoOptIntra();
-                break;
-            default:
-                sol = null;
-                break;
-        }
-        return sol;
-    }
-
-    private static ArrayList<HashMap<Solution, Transformation> > searchAllCandidatesIntra(Solution initialSol) {
-        ArrayList<HashMap<Solution, Transformation>> neighbors = new ArrayList<>();
-        int[] intraMethods = {1, 3, 5};
-        // Pour chaque méthode de voisinage possible
-        for(int k : intraMethods) {
-            // Pour chaque route
-            for(int i = 0; i < initialSol.getRoads().size() ; i++) {
-                // Pour une destination j sauf dépot départ et arrivée
-                for (int j = 1; j < initialSol.getARoad(i).getDestinations().size()-1; j++)
-                {
-                    if(initialSol.getARoad(i).getDestinations().size()-2 > 1) {
-                        // Pour chaque destination l sauf dépot départ et arrivée
-                        for (int l = j; l < initialSol.getARoad(i).getDestinations().size()-1; l++) {
-                            if(l == j)
-                                continue;
-                            else {
-                                // getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
-                                HashMap<Solution, Transformation> candidats = getNeighbor(k, initialSol, i, i, l, j);
-                                    if(candidats != null)
-                                        neighbors.add(candidats);
-                                    else
-                                        continue;
-                            }
-                        }
-                    }
-                    else
-                        continue;
-                }
-            }
-        }
-        return neighbors;
-    }
-
-    private static ArrayList<HashMap<Solution, Transformation> > searchAllCandidatesInter(Solution initialSol) {
-        ArrayList<HashMap<Solution, Transformation> > neighbors = new ArrayList<>();
-        int[] interMethods = {2, 4, 6};
-        // Pour chaque méthode de voisinage possible
-        for(int k : interMethods) {
-            // Pour chaque route i
-            for(int i = 0; i < initialSol.getRoads().size() ; i++) {
-                for(int m = 0; m < initialSol.getRoads().size() ; m++) {
-                    // Pour chaque destination
-                    for (int j = 0; j < initialSol.getARoad(i).getDestinations().size()-1; j++) {
-                        for (int l = 0; l < initialSol.getARoad(i).getDestinations().size()-1; l++) {
-                            neighbors.add(getNeighbor(k, initialSol, i, i, j,l));
-                        }
-                    }
-                }
-            }
-        }
-        return neighbors;
-    }
-
-    private static ArrayList<HashMap<Solution, Transformation> > AllNeighbors(Solution initialSol)
-    {
-        ArrayList<HashMap<Solution, Transformation> > list1 = searchAllCandidatesIntra(initialSol);
-        ArrayList<HashMap<Solution, Transformation> > list2 = searchAllCandidatesIntra(initialSol);
-        list1.addAll(list2);
-        return list1;
-    }
 
     private static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<HashMap<Solution, Transformation>> voisins, ArrayList<Transformation> tabooList )
     {
