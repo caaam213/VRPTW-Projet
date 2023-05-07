@@ -65,8 +65,6 @@ public class Edge {
         return edge;
     }
 
-
-
     public int getDistance() {
         return distance;
     }

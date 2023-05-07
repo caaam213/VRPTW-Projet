@@ -3,6 +3,7 @@ package Metaheuristique.NeighborOperators;
 import Logistique.Destination;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
+import Metaheuristique.Taboo.Result;
 import Metaheuristique.Taboo.Transformation;
 import Utils.SolutionUtils;
 
@@ -13,9 +14,9 @@ public class Exchange {
 
     static Transformation transformation;
 
-    public static HashMap<Solution, Transformation> Exchange(Solution solution, int roadSelected, int firstClient, int secondClient)
+    public static Result Exchange(Solution solution, int roadSelected, int firstClient, int secondClient)
     {
-        HashMap<Solution, Transformation> result = new HashMap<>();
+        Result result;
         transformation = new Transformation(firstClient, secondClient,roadSelected, roadSelected );
         Road newRoad = solution.getRoads().get(roadSelected).clone();
         Solution candidate = solution.clone();
@@ -26,10 +27,13 @@ public class Exchange {
         newRoad.getDestinations().set(firstClient, secondClientDestinsation);
         newRoad.getDestinations().set(secondClient, firstClientDestinsation);
         newRoad = newRoad.constrcutEdgeToRoad();
+        newRoad.setTime(0);
+        newRoad.setDistance(0);
         int size = candidate.getARoad(roadSelected).getEdges().size();
         for (int i = 0; i < size-1; i++) {
-            int time = newRoad.getTimeByIndex(i);
-            if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
+            int infos[] = new int[4];
+            infos = SolutionUtils.calculateInfos(newRoad, newRoad.getEdges().get(i).getArriveClient(), newRoad.getTime(), newRoad.getDistance(), solution.getConfig().getTruck().getCapacity(), 0);
+            if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), infos[0], infos[2] ) == false) {
                 //System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
@@ -43,15 +47,15 @@ public class Exchange {
         {
             //System.out.println("Toutes les conditions sont respectees");
             candidate.getRoads().set(roadSelected, newRoad);
-            result.put(candidate, transformation);
+            result = new Result(candidate, transformation);
             return result;
         }
     }
 
     // Exchange inter route
-    public static HashMap<Solution, Transformation> ExchangeInter(Solution solution, int firstClientRoad, int secondClientRoad, int firstClient, int secondClient)
+    public static Result ExchangeInter(Solution solution, int firstClientRoad, int secondClientRoad, int firstClient, int secondClient)
     {
-        HashMap<Solution, Transformation> result = new HashMap<>();
+        Result result;
         transformation = new Transformation(firstClient, secondClient,firstClientRoad, secondClientRoad );
         Road newFirstRoad = solution.getRoads().get(firstClientRoad).clone();
         Road newSecondRoad = solution.getRoads().get(secondClientRoad).clone();
@@ -90,7 +94,7 @@ public class Exchange {
             //System.out.println("Toutes les conditions sont respectees");
             candidate.getRoads().set(firstClientRoad, newFirstRoad);
             candidate.getRoads().set(secondClientRoad, newSecondRoad);
-            result.put(candidate, transformation);
+            result = new Result(candidate, transformation);
             return result;
         }
     }

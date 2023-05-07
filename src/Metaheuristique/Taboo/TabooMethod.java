@@ -2,33 +2,24 @@ package Metaheuristique.Taboo;
 
 
 import Metaheuristique.MetaheuristiquesUtils;
-import Metaheuristique.NeighborOperators.Exchange;
-import Metaheuristique.NeighborOperators.Relocate;
 
-import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 import Metaheuristique.Solution;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
 
 
 public class TabooMethod {
 
-    static int tabuSize = 10;
+    static int tabuSize = 1;
 
-
-
-    public static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<HashMap<Solution, Transformation>> voisins, ArrayList<Transformation> tabooList)
+    public static ArrayList<Solution> SolutionWithoutForbidenTransformation(ArrayList<Result> voisins, ArrayList<Transformation> tabooList )
     {
         ArrayList<Solution> cleanVoisins = new ArrayList<>();
-        for( HashMap<Solution, Transformation> voisin : voisins)
+        for( Result voisin : voisins)
         {
-            for (Map.Entry mapentry  : voisin.entrySet())
-            {
-                if(!tabooList.contains((Transformation)mapentry.getValue()))
-                    cleanVoisins.add((Solution)mapentry.getKey());
-            }
+            if(!tabooList.contains(voisin.getTransformation()))
+                cleanVoisins.add(voisin.getSolution());
         }
         return cleanVoisins;
     }

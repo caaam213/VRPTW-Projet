@@ -1,7 +1,10 @@
 package Metaheuristique.Genetics;
 
 import Graphics.SolutionVisualization;
+import Logistique.Client;
+import Metaheuristique.MetaheuristiquesUtils;
 import Metaheuristique.Solution;
+import Metaheuristique.Taboo.Result;
 import Utils.MapUtil;
 import Utils.SolutionUtils;
 
@@ -14,28 +17,63 @@ public class GeneticMethod {
     /**
      * Apply genetic method to a solution to generate a new solution
      * @param solution : Solution to apply genetic method
-     * @param method : Method to apply
      * @return new solution
      */
-    private static Solution applyMethod(Solution solution, String method) {
+    private static Solution applyMethod(Solution solution) {
+        Result solutionGenerated = null;
+        Random random = new Random();
+        while (solutionGenerated == null) {
+            int method = random.nextInt(2) + 5;
 
-        Solution generatedSolution;
-        switch (method) {
-            case "2opt":
-                //System.out.println("2opt");
-                generatedSolution =  Mutation.apply2OptMethod(solution);
-                if (generatedSolution == null)
-                    return null;
-                //SolutionUtils.verifyIfAClientAppearsTwoTimesInARoad(generatedSolution, "2opt done");
+            // Roads
+            int randomRoad1 = random.nextInt(solution.getRoads().size());
+            int randomRoad2 = -1;
+            if (method % 2 == 0) {
+                randomRoad2 = random.nextInt(solution.getRoads().size());
+                while (randomRoad1 == randomRoad2) {
+                    randomRoad2 = random.nextInt(solution.getRoads().size());
+                }
+            }
 
-            default:
-                //System.out.println("CrossExchange");
-                generatedSolution =  Mutation.applyCrossExchangeMethod(solution);
-                if (generatedSolution == null)
-                    return null;
-                //SolutionUtils.verifyIfAClientAppearsTwoTimesInARoad(generatedSolution, "CrossExchange done");
+
+            if (method <= 4) {
+                // Clients
+                int randomClient1 = random.nextInt(solution.getRoads().get(randomRoad1).getDestinations().size());
+                int randomClient2;
+                if (method % 2 == 0) {
+                    randomClient2 = random.nextInt(solution.getRoads().get(randomRoad2).getDestinations().size());
+                    while (randomClient1 == randomClient2) {
+                        randomClient2 = random.nextInt(solution.getRoads().get(randomRoad1).getDestinations().size());
+                    }
+                    solutionGenerated = MetaheuristiquesUtils.getNeighbor(method, solution, randomRoad1, randomRoad2, randomClient1, randomClient2);
+
+                } else {
+                    randomClient2 = random.nextInt(solution.getRoads().get(randomRoad1).getDestinations().size());
+                    while (randomClient1 == randomClient2) {
+                        randomClient2 = random.nextInt(solution.getRoads().get(randomRoad1).getDestinations().size());
+                    }
+                    solutionGenerated = MetaheuristiquesUtils.getNeighbor(method, solution, randomRoad1, randomRoad1, randomClient1, randomClient2);
+
+                }
+            } else {
+                // Edges
+                int randomEdge1 = random.nextInt(solution.getRoads().get(randomRoad1).getEdges().size());
+                int randomEdge2;
+                if (method % 2 == 0) {
+                    randomEdge2 = random.nextInt(solution.getRoads().get(randomRoad2).getEdges().size());
+                    solutionGenerated = MetaheuristiquesUtils.getNeighbor(method, solution, randomRoad1, randomRoad2, randomEdge1, randomEdge2);
+                } else {
+                    randomEdge2 = random.nextInt(solution.getRoads().get(randomRoad1).getEdges().size());
+                    while (randomEdge1 == randomEdge2) {
+                        randomEdge2 = random.nextInt(solution.getRoads().get(randomRoad1).getEdges().size());
+                    }
+                    solutionGenerated = MetaheuristiquesUtils.getNeighbor(method, solution, randomRoad1, randomRoad1, randomEdge1, randomEdge2);
+                }
+
+
+            }
         }
-        return generatedSolution;
+        return solutionGenerated.getSolution();
     }
 
     /**
@@ -46,9 +84,10 @@ public class GeneticMethod {
      */
     private ArrayList<Solution> createInitialPopulation(Solution solution, int populationSize) {
         ArrayList<Solution> population = new ArrayList<>();
+
         while (population.size() < populationSize) {
 
-            Solution neighborGenerated = applyMethod(solution.clone(),  SelectRandomElements.selectNeighborOperator());
+            Solution neighborGenerated = applyMethod(solution.clone());
             if (neighborGenerated != null)
             {
                 //System.out.println("Distance parcourue: " + neighborGenerated.getTotalDistanceCovered() + "\n");
@@ -231,8 +270,7 @@ public class GeneticMethod {
                     Solution solutionSelected = formerPopulation.get(indexSolutionSelected).clone();
                     while(neighborGenerated == null)
                     {
-                        neighborGenerated = applyMethod(solutionSelected.clone(),
-                                SelectRandomElements.selectNeighborOperator());
+                        neighborGenerated = applyMethod(solutionSelected.clone());
                     }
                     i++;
                     if (!SolutionUtils.verifyIfTheSolutionIsInList(populationk, neighborGenerated))

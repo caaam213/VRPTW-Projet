@@ -5,16 +5,9 @@ import Metaheuristique.Solution;
 import java.util.Random;
 
 public class SelectRandomElements {
+    // TODO : Supprimer ?
 
-    private static final String[] neighborOperators = {"2opt", "CrossExchange"};
 
-    /**
-     * @return random neighbor operator
-     */
-    public static String selectNeighborOperator() {
-        Random random = new Random();
-        return neighborOperators[random.nextInt(neighborOperators.length)];
-    }
     /**
      * @param solution : Solution to get roads
      * @return random roads indexes

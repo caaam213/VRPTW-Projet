@@ -2,24 +2,21 @@ package Graphics;
 
 import Logistique.Client;
 import Logistique.Configuration;
-import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
-import org.apache.commons.lang3.ArrayUtils;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+
+import static java.lang.String.*;
 
 
 public class SolutionVisualization {
@@ -28,8 +25,6 @@ public class SolutionVisualization {
 
     static final int WIDTHFRAME = 1000;
     static final int HEIGHTFRAME = 1000;
-
-    static Frame frame;
 
     static mxGraph graph;
 
@@ -53,7 +48,7 @@ public class SolutionVisualization {
         Color color = new Color(r, g, b);
 
         // Convert the color to hexadecimal
-        String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        String hex = format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 
         return hex;
     }
@@ -162,16 +157,11 @@ public class SolutionVisualization {
 
     }
 
-    public static void removeAllEdges(mxGraph graph) {
-        Object[] edges = graph.getChildEdges(graph.getDefaultParent());
-        graph.removeCells(edges);
-    }
+
 
     public static void updateGraphNode(Solution solution) {
         graph.getModel().beginUpdate();
         Object[] edges = graph.getChildEdges(graph.getDefaultParent());
-        List<mxCell[]> edgesToAdd = new ArrayList<>();
-        List<String> edgesToAddColor = new ArrayList<>();
         List<Object> edgesToRemove = new ArrayList<>(Arrays.asList(graph.getChildEdges(graph.getDefaultParent())));
 
         for (Road road : solution.getRoads()) {
@@ -200,9 +190,7 @@ public class SolutionVisualization {
                 }
 
                 if (!edgeExists) {
-                    graph.insertEdge(graph.getDefaultParent(), null, "",(mxCell) vertexes[d1Index], (mxCell) vertexes[d2Index], "strokeColor="+color);
-                    /*edgesToAdd.add(new mxCell[]{(mxCell) vertexes[d1Index], (mxCell) vertexes[d2Index]});
-                    edgesToAddColor.add(color);*/
+                    graph.insertEdge(graph.getDefaultParent(), null, "", vertexes[d1Index], vertexes[d2Index], "strokeColor="+color);
                 }
             }
         }

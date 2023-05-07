@@ -22,4 +22,11 @@ public class Result {
         return transformation;
     }
 
+    public void setSolution(Solution solution) {
+        this.solution = solution;
+    }
+
+    public void setTransformation(Transformation transformation) {
+        this.transformation = transformation;
+    }
 }

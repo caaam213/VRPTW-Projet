@@ -1,6 +1,5 @@
 package Metaheuristique.Genetics;
 
-import Graphics.SolutionVisualization;
 import Logistique.Client;
 import Logistique.Depot;
 import Logistique.Destination;
@@ -349,9 +348,7 @@ public class Crossover {
             solutionChild.setTotalDistanceCovered();
 
         }
-
         return solutionChild;
-
     }
 
     /**

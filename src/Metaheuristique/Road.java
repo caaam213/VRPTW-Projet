@@ -260,7 +260,6 @@ public class Road implements Cloneable{
         return this.getEdges().get(indexDest).getTime();
     }
 
-
     public void setTime(int time) {
         this.time = time;
     }

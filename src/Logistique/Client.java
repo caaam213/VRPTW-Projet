@@ -5,7 +5,6 @@ public class Client extends Destination {
     int demand;
     int service;
     int nbClients;
-    boolean isTheClientServed;
     int readyTime;
     int dueTime;
     GPSCoordinates localisation;
@@ -26,9 +25,6 @@ public class Client extends Destination {
         return demand;
     }
 
-    public boolean isTheClientServed() {
-        return isTheClientServed;
-    }
 
     /**
      * @return
@@ -39,7 +35,6 @@ public class Client extends Destination {
                 "demand=" + demand +
                 ", service=" + service +
                 ", nbClients=" + nbClients +
-                ", isTheClientServed=" + isTheClientServed +
                 ", localisation=" + super.localisation +
                 ", idName=" + super.idName +
                 ", readyTime=" + super.readyTime +
@@ -51,12 +46,8 @@ public class Client extends Destination {
         return service;
     }
 
-    public int getNbClients() {
-        return nbClients;
-    }
-
-
     @Override
+    // TODO : Verifier son utilité
     public Client clone() {
         return new Client(localisation, idName, readyTime, dueTime, demand, service);
     }
