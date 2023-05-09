@@ -1,6 +1,7 @@
 package Metaheuristique.NeighborOperators;
 
 import Logistique.Destination;
+import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import Metaheuristique.Taboo.Result;
@@ -10,6 +11,8 @@ import Utils.SolutionUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static Utils.SolutionUtils.distanceBetweenTwoDestination;
+
 
 public class Relocate {
 
@@ -18,40 +21,74 @@ public class Relocate {
 
     // Relocate intra route
     public static Result RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
+        if(indexClient == newIndexClient)
+        {
+            System.out.println("indexClient == newIndexClient");
+            return null;
+        }
+        System.out.println("indexClient = " + indexClient + " newIndexClient = " + newIndexClient);
+        System.out.println("BAASE");
+
+        for(int j=0; j < solution.getRoads().get(roadSelected).getDestinations().size(); j++)
+        {
+            System.out.println("Destinsation : " + solution.getRoads().get(roadSelected).getDestinations().get(j).getIdName());
+
+        }
+        System.out.println();
+
         // on récupère la route du trajet concerné
-        transformation = new Transformation(indexClient, newIndexClient, roadSelected, roadSelected);
         Road newRoad = solution.getRoads().get(roadSelected).clone();
         // On recupère la destination du client
         Destination arriveClient = newRoad.getDestinations().get(indexClient);
         // on retire le client du trajet
-        newRoad.removeDestinationToRoad(indexClient);
+        newRoad.getDestinations().remove(indexClient);
+        newRoad.getDestinations().add(newIndexClient, arriveClient);
+
+
+        for(int j=0; j < newRoad.getDestinations().size(); j++)
+        {
+            System.out.println("Destinsation : " + newRoad.getDestinations().get(j).getIdName());
+        }
         // on crée un candidat
         Solution candidate = solution.clone();
-        ArrayList<Boolean> isRoadPossible = new ArrayList<Boolean>();
         // on ajoute le client à sa nouvelle position
-        newRoad = newRoad.addDestinationsAndUpdateEdgeToRoad(arriveClient, newIndexClient);
+        //newRoad = newRoad.addDestinationsAndUpdateEdgeToRoad(arriveClient, newIndexClient);
         // On vérifie si les conditions sont respectées
         // on vérifie pour chacune des destinations de la route si le nouveau trajet est possible
         candidate.getRoads().set(roadSelected, newRoad);
-        int size = candidate.getARoad(roadSelected).getEdges().size();
+        int size = candidate.getARoad(roadSelected).getDestinations().size();
+        int infos[] = {0,0, solution.getConfig().getTruck().getCapacity(),0};
+        newRoad.getEdges().clear();
         for (int i = 0; i < size-1; i++) {
-            int time = newRoad.getTimeByIndex(i);
-            if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
+            // time, distance, capacity, distanceBetweenTwoDestinations
+            int chrono = infos[0];
+            int capacityActul = infos[2];
+            Destination departedClient = newRoad.getDestinations().get(i);
+            Destination arrivedClient = newRoad.getDestinations().get(i+1);
+            int dis = distanceBetweenTwoDestination(departedClient, arrivedClient);
+            if (SolutionUtils.isClientCanBeDelivered(departedClient, arrivedClient, chrono, capacityActul) == false) {
+                System.out.println("Client : " + departedClient.getIdName());
+                System.out.println("Client : " + arrivedClient.getIdName());
+                System.out.println("Temps actuel : " + chrono);
+                System.out.println("Distance : " + dis);
+                System.out.println("DueTime : " + arrivedClient.getDueTime());
                 System.out.println("conditions non respectees");
-                isRoadPossible.add(false);
+                return null;
+            }
+            else {
+                Edge edge = new Edge(departedClient, arrivedClient);
+                // isClientCanBeDelivered(Destination startClient, Destination arriveClient, int time, int capacity)
+                infos = SolutionUtils.calculateInfos(newRoad, arrivedClient,chrono, dis, capacityActul, 0);
+                edge.setDistance(infos[2]);
+                edge.setTime(chrono);
+                edge.setQuantityDelivered(infos[3]);
+                newRoad.getEdges().add(edge);
             }
         }
-        if(isRoadPossible.contains(false))
-        {
-            System.out.println("trajet impossible");
-            return null;
-        }
-        else
-        {
-            System.out.println("Toutes les conditions sont respectees");
-            Result result = new Result(candidate, transformation);
-            return result;
-        }
+        System.out.println("Toutes les conditions sont respectees");
+        Transformation transformation = new Transformation(roadSelected, roadSelected, newIndexClient, indexClient);
+        Result res = new Result(candidate, transformation);
+        return res;
     }
 
     // Relocate inter routes

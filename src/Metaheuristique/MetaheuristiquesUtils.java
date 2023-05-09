@@ -46,10 +46,10 @@ public class MetaheuristiquesUtils {
     }
 
     public static Result getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient) {
-        Result sol;
+        Result sol = null;
         switch(method) {
             case 1:
-                sol = Exchange.ExchangeIntra(solution,firstClientRoad, newIndexClient, indexClient);
+                //sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
                 break;
             case 2:
                 sol = Exchange.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
@@ -67,7 +67,6 @@ public class MetaheuristiquesUtils {
                 sol = TwoOptAndCrossExchange.runCrossExchange(solution, firstClientRoad, secondClientRoad, newIndexClient, indexClient);
                 break;
             default:
-                sol = null;
                 break;
         }
         return sol;
@@ -86,7 +85,6 @@ public class MetaheuristiquesUtils {
                     if(initialSol.getARoad(i).getDestinations().size()-2 > 1) {
                         // Pour chaque destination l sauf dépot départ et arrivée
                         for (int l = j+1; l < initialSol.getARoad(i).getDestinations().size()-1; l++) {
-                            // getNeighbor(int method, Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
                             Result candidats = getNeighbor(k, initialSol, i, i, l, j);
                             if(candidats != null)
                             {
