@@ -94,6 +94,12 @@ public class Relocate {
     // Relocate inter routes
     public static Result RelocateInter(Solution solution, int firstClientRoad, int secondClientRoad, int newIndexClient, int indexClient)
     {
+        if(indexClient >= solution.getRoads().get(firstClientRoad).getDestinations().size()-1 || newIndexClient >= solution.getRoads().get(secondClientRoad).getDestinations().size()-1 || newIndexClient == 0 || indexClient == 0)
+        {
+            System.out.println("newIndexClient > firstClientRoad || newIndexClient > secondClientRoad");
+            return null;
+        }
+
         Result result;
         transformation = new Transformation(indexClient, newIndexClient, firstClientRoad, secondClientRoad);
         // on récupère la route du trajet concerné
@@ -102,43 +108,61 @@ public class Relocate {
         // On recupère la destination du client
         Destination arriveFirstClient = newFirstRoad.getDestinations().get(indexClient);
         // on retire le client du trajet
-        newFirstRoad.removeDestinationToRoad(indexClient);
+        newFirstRoad.getDestinations().remove(indexClient);
         // on crée un candidat
         Solution candidate = solution.clone();
-        ArrayList<Boolean> isRoadPossible = new ArrayList<Boolean>();
         // on ajoute le client à sa nouvelle position
-        newSecondRoad = newSecondRoad.addDestinationsAndUpdateEdgeToRoad(arriveFirstClient, newIndexClient);
+        newSecondRoad.getDestinations().add(newIndexClient, arriveFirstClient);
         // On vérifie si les conditions sont respectées
         // on vérifie pour chacune des destinations de la route si le nouveau trajet est possible
+
+
+        for(int j=0; j < newFirstRoad.getDestinations().size(); j++)
+        {
+            System.out.println("Destinsation Premiere Route : " + newFirstRoad.getDestinations().get(j).getIdName());
+        }
+        System.out.println();
+        for(int j=0; j < newSecondRoad.getDestinations().size(); j++)
+        {
+            System.out.println("Destinsation Seconde Route: " + newSecondRoad.getDestinations().get(j).getIdName());
+        }
+        Road Tab[] = {newFirstRoad, newSecondRoad};
+        for(int j = 0; j < 2; j++) {
+            int infos[] = {0,0, solution.getConfig().getTruck().getCapacity(),0};
+            int size = Tab[j].getEdges().size();
+            for (int i = 0; i < size - 1; i++) {
+                int chrono = infos[0];
+                int capacityActul = infos[2];
+                Destination departedClient = Tab[j].getDestinations().get(i);
+                Destination arrivedClient = Tab[j].getDestinations().get(i + 1);
+                int dis = distanceBetweenTwoDestination(departedClient, arrivedClient);
+                if (SolutionUtils.isClientCanBeDelivered(departedClient, arrivedClient, chrono, capacityActul) == false) {
+                    System.out.println("Client : " + departedClient.getIdName());
+                    System.out.println("Client : " + arrivedClient.getIdName());
+                    System.out.println("Temps actuel : " + chrono);
+                    System.out.println("Distance : " + dis);
+                    System.out.println("DueTime : " + arrivedClient.getDueTime());
+                    System.out.println("conditions non respectees");
+                    return null;
+                } else {
+                    Edge edge = new Edge(departedClient, arrivedClient);
+                    // isClientCanBeDelivered(Destination startClient, Destination arriveClient, int time, int capacity)
+                    infos = SolutionUtils.calculateInfos(Tab[j], arrivedClient, chrono, dis, capacityActul, 0);
+                    edge.setDistance(infos[2]);
+                    edge.setTime(chrono);
+                    edge.setQuantityDelivered(infos[3]);
+                    Tab[j].getEdges().add(edge);
+                }
+            }
+        }
         candidate.getRoads().set(firstClientRoad, newFirstRoad);
         candidate.getRoads().set(secondClientRoad, newSecondRoad);
-        int sizeFirst = candidate.getARoad(firstClientRoad).getEdges().size();
-        int sizeSecond = candidate.getARoad(secondClientRoad).getEdges().size();
-        for (int i = 0; i < sizeFirst-1; i++) {
-            int time = newFirstRoad.getTimeByIndex(i);
-            if (SolutionUtils.isClientCanBeDelivered(newFirstRoad.getEdges().get(i).getDepartClient(), newFirstRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
-                isRoadPossible.add(false);
-            }
-        }
-        for (int i = 0; i < sizeSecond-1; i++) {
-            int time = newFirstRoad.getTimeByIndex(i);
-            if (SolutionUtils.isClientCanBeDelivered(newSecondRoad.getEdges().get(i).getDepartClient(), newSecondRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
-                isRoadPossible.add(false);
-            }
-        }
-        if(isRoadPossible.contains(false))
+        if(newFirstRoad.getDestinations().size() <= 2)
         {
-            //System.out.println("trajet impossible");
-            return null;
+            candidate.getRoads().remove(firstClientRoad);
         }
-        else
-        {
-            //System.out.println("Toutes les conditions sont respectees");
-            result = new Result(candidate, transformation);
-            return result;
-        }
+        result = new Result(candidate, transformation);
+        return result;
     }
 
 }

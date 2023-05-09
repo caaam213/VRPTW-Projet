@@ -22,7 +22,7 @@ public class Main {
     }
 
         public static void main(String[] args) {
-            Configuration config = new Configuration("101");
+            Configuration config = new Configuration("111");
             System.out.println("Nombre de vehicules minimal : " + config.getNumberOfMinimalVehicles());
             System.out.println("Solution aleatoire generee : ");
             Solution solution = SolutionUtils.generateRandomSolution(config, false);
@@ -32,9 +32,10 @@ public class Main {
             SolutionVisualization.DisplayGraph(solution, "Initial");
             //TwoOpt.generateAllNeighbors(solution);
             for (int j = 0; j < solution.getRoads().size(); j++)
-                for (int i = 1; i < solution.getARoad(j).getDestinations().size() - 1; i++) {
-                    for (int k = i + 1; k < solution.getARoad(j).getDestinations().size() - 1; k++) {
-                        Result voisin = Exchange.Exchange(solution, j, k, i);
+                for (int m = j+1; m < solution.getRoads().size(); m++)
+                    for (int i = 1; i < solution.getARoad(j).getDestinations().size() - 1; i++) {
+                        for (int k = 1; k < solution.getARoad(m).getDestinations().size() - 1; k++) {
+                        Result voisin = Relocate.RelocateInter(solution, j, m, k, i);
                         if (voisin == null) {
                             System.out.println("Voisin null pour i = " + i + "et la route " + j);
                             continue;
