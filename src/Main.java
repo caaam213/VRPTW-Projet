@@ -1,6 +1,7 @@
 import Graphics.SolutionVisualization;
 import Logistique.Configuration;
 import Metaheuristique.Genetics.GeneticMethod;
+import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import Metaheuristique.NeighborOperators.Exchange;
 import Metaheuristique.Taboo.Result;
@@ -24,18 +25,17 @@ public class Main {
     public static void main(String[] args) {
         long startTime = System.nanoTime();
         // Write code
-        Configuration config = new Configuration("111");
+        Configuration config = new Configuration("1");
         Solution solution = SolutionUtils.generateRandomSolution(config, false);
         GeneticMethod.runGeneticMethod(solution, 150, 500, 0.33F, 10);
-        SolutionVisualization.DisplayGraph(solution, "Initial");
+        //SolutionVisualization.DisplayGraph(solution, "Initial");
         //Solution solution2 = TabouSearch(solution);
         //SolutionVisualization.DisplayGraph(solution2, "Tabou");
 
-        /*for(int i = 1; i < solution.getRoads().get(0).getDestinations().size()-1; i++)
-        {
+        for(int i = 1; i < (solution.getRoads().get(0)).getDestinations().size() - 1; ++i) {
             Result res = Exchange.Exchange(solution, 0, 2, i);
-            SolutionVisualization.DisplayGraph(res.getSolution(), "Genetic");
-        }*/
+            SolutionVisualization.DisplayGraph(res.getSolution(), "Test");
+        }
 
         long endTime = System.nanoTime();
         long duration = endTime - startTime;
