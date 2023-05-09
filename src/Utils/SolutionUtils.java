@@ -66,7 +66,6 @@ public class SolutionUtils {
             return false;
         }
 
-
         if (arriveClient instanceof Client)
         {
             int timeCalculated = time + distanceBetweenTwoDestination(startClient, arriveClient)+((Client) arriveClient).getService();

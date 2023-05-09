@@ -49,7 +49,7 @@ public class MetaheuristiquesUtils {
         Result sol;
         switch(method) {
             case 1:
-                sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
+                sol = Exchange.ExchangeIntra(solution,firstClientRoad, newIndexClient, indexClient);
                 break;
             case 2:
                 sol = Exchange.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);

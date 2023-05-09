@@ -18,9 +18,8 @@ public class Relocate {
 
     // Relocate intra route
     public static Result RelocateIntra(Solution solution, int roadSelected, int newIndexClient, int indexClient) {
-        Result result;
-        transformation = new Transformation(indexClient, newIndexClient, roadSelected, roadSelected);
         // on récupère la route du trajet concerné
+        transformation = new Transformation(indexClient, newIndexClient, roadSelected, roadSelected);
         Road newRoad = solution.getRoads().get(roadSelected).clone();
         // On recupère la destination du client
         Destination arriveClient = newRoad.getDestinations().get(indexClient);
@@ -38,20 +37,19 @@ public class Relocate {
         for (int i = 0; i < size-1; i++) {
             int time = newRoad.getTimeByIndex(i);
             if (SolutionUtils.isClientCanBeDelivered(newRoad.getEdges().get(i).getDepartClient(), newRoad.getEdges().get(i).getArriveClient(), time, solution.getConfig().getTruck().getCapacity() ) == false) {
-                //System.out.println("conditions non respectees");
+                System.out.println("conditions non respectees");
                 isRoadPossible.add(false);
             }
         }
         if(isRoadPossible.contains(false))
         {
-            //System.out.println("trajet impossible");
+            System.out.println("trajet impossible");
             return null;
         }
         else
         {
-            //System.out.println("Toutes les conditions sont respectees");
-            //SolutionVisualization.DisplayGraph(candidate);
-            result = new Result(candidate, transformation);
+            System.out.println("Toutes les conditions sont respectees");
+            Result result = new Result(candidate, transformation);
             return result;
         }
     }

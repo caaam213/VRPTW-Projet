@@ -1,13 +1,11 @@
 import Graphics.SolutionVisualization;
 import Logistique.Configuration;
-import Metaheuristique.Genetics.GeneticMethod;
-import Metaheuristique.Road;
+import Logistique.Destination;
+import Metaheuristique.Edge;
 import Metaheuristique.Solution;
 import Metaheuristique.NeighborOperators.Exchange;
 import Metaheuristique.Taboo.Result;
 import Utils.SolutionUtils;
-
-import static Metaheuristique.Taboo.TabooMethod.TabouSearch;
 
 public class Main {
     public static void displayExecutionTime(long duration)
@@ -25,24 +23,28 @@ public class Main {
     public static void main(String[] args) {
         long startTime = System.nanoTime();
         // Write code
-        Configuration config = new Configuration("1");
-        Solution solution = SolutionUtils.generateRandomSolution(config, false);
-        GeneticMethod.runGeneticMethod(solution, 150, 500, 0.33F, 10);
-        //SolutionVisualization.DisplayGraph(solution, "Initial");
-        //Solution solution2 = TabouSearch(solution);
-        //SolutionVisualization.DisplayGraph(solution2, "Tabou");
+        Configuration config = new Configuration("2");
+        Solution solution = SolutionUtils.generateRandomSolution(config, true);
 
-        for(int i = 1; i < (solution.getRoads().get(0)).getDestinations().size() - 1; ++i) {
-            Result res = Exchange.Exchange(solution, 0, 2, i);
-            SolutionVisualization.DisplayGraph(res.getSolution(), "Test");
+        System.out.println("Solution initiale : ");
+        solution.displaySolution();
+        SolutionVisualization.DisplayGraph(solution, "Initial");
+
+        for (int i = 1; i < solution.getARoad(0).getDestinations().size()-1 ; i++) {
+            Result voisin = Exchange.ExchangeIntra(solution, 0, i, 2);
+            for(Destination dest : voisin.getSolution().getARoad(0).getDestinations())
+            {
+                System.out.println(dest.toString());
+            }
+            for (Edge edge : voisin.getSolution().getARoad(0).getEdges())
+            {
+                System.out.print(edge.toString());
+            }
+            SolutionVisualization.DisplayGraph(voisin.getSolution(), "Exchange");
         }
 
         long endTime = System.nanoTime();
         long duration = endTime - startTime;
         displayExecutionTime(duration);
-
-
-
     }
-
 }
