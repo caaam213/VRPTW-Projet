@@ -1,6 +1,5 @@
 package Metaheuristique;
 
-import Logistique.Client;
 import Logistique.Configuration;
 import Logistique.Destination;
 
@@ -12,8 +11,6 @@ public class Solution implements Cloneable {
 
     private Configuration config;
     int totalDistanceCovered = 0;
-    int nbClientsServed = 0;
-    int nbClients = 0;
     static int idSolution = 0;
 
     int idSolutionCreated;
@@ -31,28 +28,28 @@ public class Solution implements Cloneable {
         return config;
     }
 
-    public static int getIdSolution() {
-        return idSolution;
-    }
-
     public void addRoads(Road road) {
         roads.add(road);
     }
 
-    public void setTotalDistanceCovered() {
-        for(Road road : roads)
-        {
-            totalDistanceCovered += road.getDistance();
+    public void reCalculateTotalDistanceCovered() {
+        totalDistanceCovered = 0;
+        for (Road road : roads) {
+            for(int i =0;i<road.getDestinations().size()-1;i++)
+            {
+                totalDistanceCovered += SolutionUtils.distanceBetweenTwoDestination(road.getDestinations().get(i),road.getDestinations().get(i+1));
+            }
+
         }
 
     }
 
-    public int getTotalDistanceCovered() {
-        return totalDistanceCovered;
+    public void setTotalDistanceCovered(int totalDistanceCovered) {
+        this.totalDistanceCovered = totalDistanceCovered;
     }
 
-    public int getNbClientsServed() {
-        return nbClientsServed;
+    public int getTotalDistanceCovered() {
+        return totalDistanceCovered;
     }
 
     public ArrayList<Road> getRoads() {
@@ -80,7 +77,6 @@ public class Solution implements Cloneable {
         for(Road road : roads)
         {
             System.out.println("Route : "+countRoad);
-            System.out.println("Temps : "+road.getTime());
             System.out.println("Destination : ");
             for (Destination destination : road.getDestinations())
             {
@@ -88,13 +84,7 @@ public class Solution implements Cloneable {
                 System.out.print(destination.getIdName()+"-");
             }
             System.out.println("");
-            System.out.println("Edges : ");
-
-            for (Edge edge : road.getEdges())
-            {
-                System.out.print(edge.toString());
-            }
-            System.out.println("Distance parcourue : "+road.getDistance()+"km");
+            System.out.println("Distance parcourue : "+road.calculateDistance()+"km");
             System.out.println("");
             System.out.println("Fin de la route");
             System.out.println("");
@@ -125,7 +115,7 @@ public class Solution implements Cloneable {
     {
         Solution newSolution = new Solution();
         newSolution.setConfig(this.getConfig());
-        newSolution.setTotalDistanceCovered();
+        newSolution.setTotalDistanceCovered(this.getTotalDistanceCovered());
         ArrayList<Road> clonedList = new ArrayList<Road>();
         for (Road road : this.getRoads()) {
             clonedList.add(road.clone());

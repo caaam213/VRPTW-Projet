@@ -3,7 +3,6 @@ package Metaheuristique.Genetics;
 import Logistique.Client;
 import Logistique.Depot;
 import Logistique.Destination;
-import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import Utils.SolutionUtils;
@@ -70,10 +69,6 @@ public class Crossover {
 
 
                     int indexClientToRemove = solutionChild.getRoads().get(i).returnListOfIdClient().indexOf(clientToRemove.getIdName())+1;
-                    if (indexClientToRemove == 0)
-                    {
-                        throw new RuntimeException("Le client "+clientToRemove.getIdName()+" n'est pas dans la route "+i);
-                    }
                     solutionChild.getRoads().get(i).removeDestinationToRoadAndUpdateInfo(indexClientToRemove);
 
                 }
@@ -139,7 +134,6 @@ public class Crossover {
         ArrayList<Client> clientsNotServed = getClientsNotServed(solutionChild, clientsNotServedId);
 
         Road roadCloned;
-        Edge edge;
         for (Client client : clientsNotServed)
         {
             int indexRoad = 0;
@@ -153,11 +147,11 @@ public class Crossover {
                 for (int i = 1; i < road.getDestinations().size()-1; i++)
                 {
                     roadCloned = road.clone();
-                    roadCloned.getEdges().clear();
 
                     int distance = 0;
                     int time = 0;
                     int capacityRemained = solutionChild.getConfig().getTruck().getCapacity();
+                    int[] infos;
 
                     roadCloned.getDestinations().add(i, client);
 
@@ -167,10 +161,11 @@ public class Crossover {
                         Destination startDestination = roadCloned.getDestinations().get(j-1);
                         Destination arriveDestination = roadCloned.getDestinations().get(j);
 
-                        edge = new Edge(startDestination, arriveDestination);
                         if (SolutionUtils.isClientCanBeDelivered(startDestination, arriveDestination, time, capacityRemained))
                         {
-                            roadCloned = SolutionUtils.calculateRoad(arriveDestination, time, distance, capacityRemained, roadCloned, edge, j-1, false);
+                            //roadCloned = SolutionUtils.calculateRoad(arriveDestination, time, distance, capacityRemained, roadCloned);
+                            infos = SolutionUtils.calculateInfos(roadCloned, arriveDestination, time, distance, capacityRemained);
+                            roadCloned.getDestinations().add(arriveDestination);
                         }
                         else
                         {
@@ -178,9 +173,9 @@ public class Crossover {
                             break;
                         }
 
-                        time = roadCloned.getTime();
-                        distance = roadCloned.getDistance();
-                        capacityRemained = solutionChild.getConfig().getTruck().getCapacity() - roadCloned.getCapacityDelivered();
+                        time = infos[0];
+                        distance = infos[1];
+                        capacityRemained = infos[2];
 
                     }
                     if (roadCloned == null)
@@ -191,11 +186,11 @@ public class Crossover {
                         roadCloned.getDestinations().remove(roadCloned.getDestinations().size()-1);
 
                     // Add depot at the end of the road
-                    roadCloned = SolutionUtils.addDepotToSwappedRoad(roadCloned, solutionChild, distance);
+                    roadCloned = SolutionUtils.addDepotToSwappedRoad(roadCloned, solutionChild);
 
-                    if (roadCloned.getDistance() < minDistance)
+                    if (distance < minDistance)
                     {
-                        minDistance = roadCloned.getDistance();
+                        minDistance = distance;
                         indexRoadToInsert = indexRoad;
                         indexClientToInsert = i;
                         roadToInsert = roadCloned;
@@ -206,8 +201,8 @@ public class Crossover {
             }
             if (minDistance != Integer.MAX_VALUE && roadToInsert != null)
             {
-                System.out.println("Le client "+client.getIdName()+" est ajoute a la route "+indexRoadToInsert+" a la position "+indexClientToInsert);
                 solutionChild.getRoads().set(indexRoadToInsert, roadToInsert);
+                solutionChild.reCalculateTotalDistanceCovered();
 
             }
             else
@@ -233,48 +228,39 @@ public class Crossover {
      */
     private static Road reconstructRoadForSBX(Solution solution1, Road road1, int index1, Road road2, int index2)
     {
-        //TODO : Add constraints
         int time = 0;
         int distance = 0;
-        int capacityDelivered = 0;
-
+        int capacityRemained = solution1.getConfig().getTruck().getCapacity();
+        int[] infos;
         Road road = new Road();
 
+        road.getDestinations().add(road1.getDestinations().get(0).clone());
+
         // Get the beginning of the first road
-        try {
-            for (int i = 0; i < index1; i++)
-            {
-                road.addDestinationsToRoad(road1.getDestinations().get(i).clone(), road1.getEdges().get(i));
-                time = road1.getEdges().get(i).getTime();
-                distance += road1.getEdges().get(i).getDistance();
-                capacityDelivered += road1.getEdges().get(i).getQuantityDelivered();
-            }
-        }
-        catch (IndexOutOfBoundsException e)
+        for (int i = 0; i < index1; i++)
         {
-            System.out.println("Index out of bounds");
-            System.out.println("Affichage liste destination : ");
-            for (Destination destination : road1.getDestinations())
-            {
-                System.out.println(destination.getIdName());
-            }
-            System.exit(0);
-
-
+            infos = SolutionUtils.calculateInfos(road, road1.getDestinations().get(i+1), time, distance, capacityRemained);
+            time = infos[0];
+            distance = infos[1];
+            capacityRemained = infos[2];
+            road.getDestinations().add(road1.getDestinations().get(i+1).clone());
         }
 
-        road.addDestinationsToRoad(road1.getDestinations().get(index1).clone(), new Edge(road1.getDestinations().get(index1).clone()));
-
+        road.getDestinations().add(road1.getDestinations().get(index1).clone());
 
         // Merge the two roads
-        Edge edge;
+
         if (!road2.getDestinations().get(index2).getIdName().equals(road.getDestinations().get(road.getDestinations().size() - 1).getIdName()))
         {
-            edge = new Edge(road1.getDestinations().get(index1).clone());
-            edge.setPosEdge(road.getEdges().size());
 
-            if (SolutionUtils.isClientCanBeDelivered(road.getDestinations().get(road.getDestinations().size() - 1).clone(), road2.getDestinations().get(index2).clone(), time, capacityDelivered))
-                road = SolutionUtils.calculateRoad(road2.getDestinations().get(index2).clone(), time, distance, capacityDelivered, road, edge, road.getEdges().size(), true);
+            if (SolutionUtils.isClientCanBeDelivered(road.getDestinations().get(road.getDestinations().size() - 1).clone(), road2.getDestinations().get(index2).clone(), time, capacityRemained))
+            {
+                infos = SolutionUtils.calculateInfos(road, road2.getDestinations().get(index2), time, distance, capacityRemained);
+                time = infos[0];
+                distance = infos[1];
+                capacityRemained = infos[2];
+                road.getDestinations().add(road2.getDestinations().get(index2).clone());
+            }
             else
                 return null;
         }
@@ -285,16 +271,21 @@ public class Crossover {
         {
             Destination startDestination = road.getDestinations().get(road.getDestinations().size() - 1).clone();
             Destination endDestination = road2.getDestinations().get(i).clone();
-            edge = new Edge(startDestination, endDestination);
             if (endDestination instanceof Depot)
             {
-                road = SolutionUtils.addDepotToSwappedRoad(road,solution1, edge.getDistance());
+                road = SolutionUtils.addDepotToSwappedRoad(road,solution1);
                 return road;
             }
             if (!road.returnListOfIdClient().contains(endDestination.getIdName()))
             {
-                if (SolutionUtils.isClientCanBeDelivered(startDestination, endDestination, road.getTime(), road.getCapacityDelivered()))
-                    road = SolutionUtils.calculateRoad(endDestination, road.getTime(), road.getDistance(), road.getCapacityDelivered(), road, edge, road.getEdges().size(), true);
+                if (SolutionUtils.isClientCanBeDelivered(startDestination, endDestination, time, capacityRemained))
+                {
+                    infos = SolutionUtils.calculateInfos(road, endDestination, time, distance, capacityRemained);
+                    time = infos[0];
+                    distance = infos[1];
+                    capacityRemained = infos[2];
+                    road.getDestinations().add(endDestination.clone());
+                }
                 else
                     return null;
             }
@@ -310,28 +301,16 @@ public class Crossover {
      * @param solutionParent2 : Solution 2
      * @return Solution : Child solution
      */
-    public static Solution crossOverRBX(Solution solutionParent1, Solution solutionParent2)
+    public static Solution crossOverRBX(Solution solutionParent1, Solution solutionParent2, int indexRoad1, int indexRoad2)
     {
         //Select random roads to merge
         Random random = new Random();
-        int indexRoad1 = random.nextInt(solutionParent1.getRoads().size());
-        int indexRoad2 = random.nextInt(solutionParent2.getRoads().size());
 
         Road road1 = solutionParent1.getRoads().get(indexRoad1).clone();
 
         Solution solutionChild = solutionParent2.clone();
         solutionChild.getRoads().set(indexRoad2, road1);
         solutionChild.getRoads().get(indexRoad2).setIdRoad(indexRoad2);
-
-        /*System.out.println("Road generated: ");
-        for (Destination destination : solutionChild.getRoads().get(indexRoad2).getDestinations())
-        {
-            System.out.println(destination.getIdName());
-        }
-        for (Edge edge : solutionChild.getRoads().get(indexRoad2).getEdges())
-        {
-            System.out.println(edge.toString());
-        }*/
 
         //Remove a client if he is served more than once in the solution
         solutionChild = removeClientServedMoreThanOnce(solutionChild, indexRoad2);
@@ -345,7 +324,7 @@ public class Crossover {
         else
         {
             //SolutionUtils.verifyIfAClientAppearsTwoTimesInARoad(solutionChild, "RBX function served 2 times");
-            solutionChild.setTotalDistanceCovered();
+            solutionChild.reCalculateTotalDistanceCovered();
 
         }
         return solutionChild;
@@ -357,12 +336,10 @@ public class Crossover {
      * @param solutionParent2 : Solution 2
      * @return Solution : Child solution
      */
-    public static Solution crossOverSBX(Solution solutionParent1, Solution solutionParent2)
+    public static Solution crossOverSBX(Solution solutionParent1, Solution solutionParent2, int indexRoad1, int indexRoad2)
     {
         //Select random roads to merge
         Random random = new Random();
-        int indexRoad1 = random.nextInt(solutionParent1.getRoads().size());
-        int indexRoad2 = random.nextInt(solutionParent2.getRoads().size());
 
         Road road1 = solutionParent1.getRoads().get(indexRoad1).clone();
         Road road2 = solutionParent2.getRoads().get(indexRoad2).clone();
@@ -411,13 +388,13 @@ public class Crossover {
         //Serve the clients not served
         solutionChild = serveClientsNotServed(solutionChild);
 
+
         if (solutionChild == null)
             return null;
         else
         {
             //SolutionUtils.verifyIfAClientAppearsTwoTimesInARoad(solutionChild, "SBX function served 2 times");
-            solutionChild.setTotalDistanceCovered();
-
+            solutionChild.reCalculateTotalDistanceCovered();
         }
         return solutionChild;
 

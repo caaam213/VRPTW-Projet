@@ -1,15 +1,11 @@
 package Metaheuristique.NeighborOperators;
 
 import Logistique.Destination;
-import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import Metaheuristique.Taboo.Result;
 import Metaheuristique.Taboo.Transformation;
 import Utils.SolutionUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import static Utils.SolutionUtils.distanceBetweenTwoDestination;
 
@@ -26,6 +22,17 @@ public class Relocate {
             System.out.println("indexClient == newIndexClient");
             return null;
         }
+
+        if(indexClient == 0 || newIndexClient == 0)
+        {
+            return null;
+        }
+
+        if (indexClient >= solution.getRoads().get(roadSelected).getDestinations().size()-1 || newIndexClient >= solution.getRoads().get(roadSelected).getDestinations().size()-1)
+        {
+            return null;
+        }
+
         System.out.println("indexClient = " + indexClient + " newIndexClient = " + newIndexClient);
         System.out.println("BAASE");
 
@@ -58,7 +65,6 @@ public class Relocate {
         candidate.getRoads().set(roadSelected, newRoad);
         int size = candidate.getARoad(roadSelected).getDestinations().size();
         int infos[] = {0,0, solution.getConfig().getTruck().getCapacity(),0};
-        newRoad.getEdges().clear();
         for (int i = 0; i < size-1; i++) {
             // time, distance, capacity, distanceBetweenTwoDestinations
             int chrono = infos[0];
@@ -76,17 +82,12 @@ public class Relocate {
                 return null;
             }
             else {
-                Edge edge = new Edge(departedClient, arrivedClient);
                 // isClientCanBeDelivered(Destination startClient, Destination arriveClient, int time, int capacity)
-                infos = SolutionUtils.calculateInfos(newRoad, arrivedClient,chrono, dis, capacityActul, 0);
-                edge.setDistance(infos[2]);
-                edge.setTime(chrono);
-                edge.setQuantityDelivered(infos[3]);
-                newRoad.getEdges().add(edge);
+                infos = SolutionUtils.calculateInfos(newRoad, arrivedClient,chrono, dis, capacityActul);
             }
         }
         System.out.println("Toutes les conditions sont respectees");
-        Transformation transformation = new Transformation(roadSelected, roadSelected, newIndexClient, indexClient);
+        Transformation transformation = new Transformation("Relocate-intra",roadSelected, roadSelected, newIndexClient, indexClient);
         Result res = new Result(candidate, transformation);
         return res;
     }
@@ -96,12 +97,12 @@ public class Relocate {
     {
         if(indexClient >= solution.getRoads().get(firstClientRoad).getDestinations().size()-1 || newIndexClient >= solution.getRoads().get(secondClientRoad).getDestinations().size()-1 || newIndexClient == 0 || indexClient == 0)
         {
-            System.out.println("newIndexClient > firstClientRoad || newIndexClient > secondClientRoad");
+            //System.out.println("newIndexClient > firstClientRoad || newIndexClient > secondClientRoad");
             return null;
         }
 
         Result result;
-        transformation = new Transformation(indexClient, newIndexClient, firstClientRoad, secondClientRoad);
+        transformation = new Transformation("Relocate-inter",indexClient, newIndexClient, firstClientRoad, secondClientRoad);
         // on récupère la route du trajet concerné
         Road newFirstRoad = solution.getRoads().get(firstClientRoad).clone();
         Road newSecondRoad = solution.getRoads().get(secondClientRoad).clone();
@@ -117,7 +118,7 @@ public class Relocate {
         // on vérifie pour chacune des destinations de la route si le nouveau trajet est possible
 
 
-        for(int j=0; j < newFirstRoad.getDestinations().size(); j++)
+        /*for(int j=0; j < newFirstRoad.getDestinations().size(); j++)
         {
             System.out.println("Destinsation Premiere Route : " + newFirstRoad.getDestinations().get(j).getIdName());
         }
@@ -125,11 +126,11 @@ public class Relocate {
         for(int j=0; j < newSecondRoad.getDestinations().size(); j++)
         {
             System.out.println("Destinsation Seconde Route: " + newSecondRoad.getDestinations().get(j).getIdName());
-        }
+        }*/
         Road Tab[] = {newFirstRoad, newSecondRoad};
         for(int j = 0; j < 2; j++) {
             int infos[] = {0,0, solution.getConfig().getTruck().getCapacity(),0};
-            int size = Tab[j].getEdges().size();
+            int size = Tab[j].getDestinations().size();
             for (int i = 0; i < size - 1; i++) {
                 int chrono = infos[0];
                 int capacityActul = infos[2];
@@ -137,21 +138,18 @@ public class Relocate {
                 Destination arrivedClient = Tab[j].getDestinations().get(i + 1);
                 int dis = distanceBetweenTwoDestination(departedClient, arrivedClient);
                 if (SolutionUtils.isClientCanBeDelivered(departedClient, arrivedClient, chrono, capacityActul) == false) {
-                    System.out.println("Client : " + departedClient.getIdName());
+                    /*System.out.println("Client : " + departedClient.getIdName());
                     System.out.println("Client : " + arrivedClient.getIdName());
                     System.out.println("Temps actuel : " + chrono);
                     System.out.println("Distance : " + dis);
                     System.out.println("DueTime : " + arrivedClient.getDueTime());
-                    System.out.println("conditions non respectees");
+                    System.out.println("conditions non respectees");*/
                     return null;
                 } else {
-                    Edge edge = new Edge(departedClient, arrivedClient);
+
                     // isClientCanBeDelivered(Destination startClient, Destination arriveClient, int time, int capacity)
-                    infos = SolutionUtils.calculateInfos(Tab[j], arrivedClient, chrono, dis, capacityActul, 0);
-                    edge.setDistance(infos[2]);
-                    edge.setTime(chrono);
-                    edge.setQuantityDelivered(infos[3]);
-                    Tab[j].getEdges().add(edge);
+                    infos = SolutionUtils.calculateInfos(Tab[j], arrivedClient, chrono, dis, capacityActul);
+
                 }
             }
         }

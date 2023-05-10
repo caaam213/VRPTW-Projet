@@ -1,368 +1,142 @@
 package Metaheuristique.NeighborOperators;
 
 import Graphics.SolutionVisualization;
-import Logistique.Depot;
 import Logistique.Destination;
-import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 import Metaheuristique.Taboo.Result;
 import Metaheuristique.Taboo.Transformation;
-import Utils.SolutionUtils;
 
 import java.util.ArrayList;
+
+import static java.lang.Math.abs;
 
 /**
  * Class to manage 2-opt and cross-exchange neighbor operators
  */
-public class TwoOptAndCrossExchange {
+public class TwoOptAndCrossExchange extends NeighborsOperators {
 
-
-    /**
-     * Get all destinations which are stable in the solution
-     * @param road Road to get stable destinations
-     * @param posEdge1 Position of the last edge of the stable road
-     * @return Road with stable destinations
-     */
-    public static Road generateRoadNotChanged(Road road, int posEdge1)
+    private static ArrayList<Destination> reverseList(ArrayList<Destination> list, int i, int j)
     {
-        Road roadInter = new Road();
-
-        for (int i = 0; i < posEdge1; i++)
+        ArrayList<Destination> reversedList = new ArrayList<>();
+        for (int k = 0; k < i; k++)
         {
-            Destination desti = road.getDestinations().get(i);
-            roadInter.addDestinationsToRoad(desti, road.getEdges().get(i));
+            reversedList.add(list.get(k));
         }
-
-        return roadInter;
+        for (int k = j; k >= i; k--)
+        {
+            reversedList.add(list.get(k));
+        }
+        for (int k = j+1; k < list.size(); k++)
+        {
+            reversedList.add(list.get(k));
+        }
+        return reversedList;
     }
 
-    /**
-     * Recalculate the road with the new edge
-     * @param departClient Depart client
-     * @param arriveClient Arrive client
-     * @param time Time
-     * @param distance Distance
-     * @param capacityRemained Capacity remained
-     * @param roadToReturn Road to return
-     * @param posEdge1  Position
-     * @return Road recalculated
-     */
-    private static Road resetEdge(Destination departClient, Destination arriveClient, int time, int distance, int capacityRemained, Road roadToReturn,  int posEdge1)
+    public static ArrayList<Destination> getSubList(ArrayList<Destination> list, int i, int j)
     {
-        Edge edgeChanged = new Edge(departClient, arriveClient);
-        if (SolutionUtils.isClientCanBeDelivered(departClient, arriveClient, time, capacityRemained))
-            roadToReturn = SolutionUtils.calculateRoad(arriveClient, time, distance, capacityRemained, roadToReturn, edgeChanged, posEdge1, true);
-        else
+        ArrayList<Destination> subList = new ArrayList<>();
+        for (int k = i; k <= j; k++)
         {
-            //System.out.println("Null");
-            return null;
+            subList.add(list.get(k));
         }
-        return roadToReturn;
+        return subList;
     }
 
-    /**
-     * Swap edges in the solution
-     * @param solution Solution to swap edges
-     * @param edges Edges of the road
-     * @param posEdge1 Position of the first edge to swap
-     * @param posEdge2 Position of the second edge to swap
-     * @param edge1 edge1 to swap
-     * @param edge2 edge2 to swap
-     * @return Road with edges swapped
-     */
-    public static Road swapEdges(Solution solution, ArrayList<Edge> edges,int roadSelected,  int posEdge1, int posEdge2, Edge edge1, Edge edge2)
+    public static Result runTwoOpt(Solution solution, int selectedRoad, int indexClient1, int indexClient2)
     {
-        Road roadToReturn;
-        int distance;
-        int time;
-        int capacityRemained;
-
-
-        Destination departClient;
-        Destination arriveClient;
-
-
-        if (posEdge1 == 0)
-        {
-            roadToReturn = new Road();
-            // Add the depot and the first client if the first edge to swap is the first edge of the road
-            departClient = solution.getConfig().getCentralDepot();
-            arriveClient = edge2.getDepartClient();
-            Edge edge = new Edge(solution.getConfig().getCentralDepot());
-            distance = 0;
-            time = 0;
-            capacityRemained = solution.getConfig().getTruck().getCapacity();
-            roadToReturn.addDestinationsToRoad(departClient, edge);
-
-        }
-        else
-        {
-            roadToReturn = generateRoadNotChanged(solution.getRoads().get(roadSelected), posEdge1);
-            distance = roadToReturn.getDistance();
-            time = roadToReturn.getTime();
-            capacityRemained = solution.getConfig().getTruck().getCapacity() - roadToReturn.getCapacityDelivered();
-            // Add the first client if the first edge to swap is not the first edge of the road
-            departClient = edge1.getDepartClient();
-            arriveClient = edge2.getDepartClient();
-
-
-        }
-
-        if (posEdge1 != 0)
-            roadToReturn.getDestinations().add(posEdge1, departClient);
-
-        // First edge to swap
-        roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, posEdge1);
-
-
-        if (roadToReturn == null)
+        if (indexClient1 == indexClient2)
             return null;
 
-        // Revert edges between the first edge to swap and the second edge to swap
-        for (int i = posEdge2-1; i > posEdge1; i--)
-            {
-                time = roadToReturn.getTime();
-                distance = roadToReturn.getDistance();
-                capacityRemained = roadToReturn.getCapacityDelivered();
-
-                try
-                {
-                    Edge edge = edges.get(i);
-                    departClient = edge.getArriveClient();
-                    arriveClient = edge.getDepartClient();
-                }
-                catch (Exception e)
-                {
-                    for (Edge edge : edges)
-                    {
-                        System.out.println(edge.toString());
-                    }
-                    System.exit(0);
-                }
-
-
-                roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, i);
-                if (roadToReturn == null)
-                    return null;
-                time = roadToReturn.getTime();
-            }
-
-
-
-
-        // Second edge to swap
-        departClient = edge1.getArriveClient();
-        arriveClient = edge2.getArriveClient();
-        if (arriveClient instanceof Depot)
+        if (indexClient2 < indexClient1)
         {
-            roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
-            return roadToReturn;
+            int temp = indexClient1;
+            indexClient1 = indexClient2;
+            indexClient2 = temp;
         }
 
-        else
-            roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, posEdge2);
-        if (roadToReturn == null)
+        if(abs(indexClient1 - indexClient2) <= 2)
+            return null;
+
+        if (indexClient1 == 0 || indexClient1 == solution.getRoads().get(selectedRoad).getDestinations().size()-1)
+            return null;
+
+        if (indexClient2 == 0 || indexClient2 == solution.getRoads().get(selectedRoad).getDestinations().size()-1)
             return null;
 
 
-        // Add the last edges of the road
-        for (int i = posEdge2+1; i < edges.size(); i++)
-        {
+        Solution neighbor = solution.clone();
+        Road road = neighbor.getRoads().get(selectedRoad);
 
-            Edge edge = edges.get(i);
-            departClient = edge.getDepartClient();
-            arriveClient = edge.getArriveClient();
 
-            if (arriveClient instanceof Depot)
-            {
-                roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
-                return roadToReturn;
-            }
-            time = roadToReturn.getTime();
-            distance = roadToReturn.getDistance();
-            capacityRemained = solution.getConfig().getTruck().getCapacity() - roadToReturn.getCapacityDelivered();
+        ArrayList<Destination> destinations = road.getDestinations();
 
-            roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, i);
-            if (roadToReturn == null)
-                return null;
 
-        }
+        destinations = reverseList(destinations, indexClient1+1, indexClient2-1);
 
-        return roadToReturn;
+
+
+        neighbor.getRoads().get(selectedRoad).setDestinations(destinations);
+        neighbor = verifyIfRoadValid(neighbor, selectedRoad);
+
+        if (neighbor == null)
+            return null;
+
+        Transformation transformation = new Transformation("2-opt", selectedRoad,selectedRoad, indexClient1, indexClient2);
+        neighbor.reCalculateTotalDistanceCovered();
+        Result result = new Result(neighbor, transformation);
+        return result;
     }
 
-    /**
-     * @param solution Solution to swap edges
-     * @param roadSelected Road selected
-     * @param indexEdge1 Position of the first edge to swap
-     * @param indexEdge2 Position of the second edge to swap
-     * @return Solution with edges swapped
-     */
-    public static Result runTwoOpt(Solution solution, int roadSelected, int indexEdge1, int indexEdge2)
+
+
+    public static Result runCrossExchange(Solution solution, int selectedRoad1, int selectedRoad2, int indexClient1, int indexClient2)
     {
-        Result result;
-        Transformation transformation = new Transformation(-1, -1, roadSelected, roadSelected, indexEdge1, indexEdge2);
-        // Edges verification
-        if (Math.abs(indexEdge1-indexEdge2)<=1)
+        if (indexClient1==0 || indexClient1 >= solution.getRoads().get(selectedRoad1).getDestinations().size()-2)
             return null;
 
-        if (indexEdge1 > indexEdge2)
-        {
-            int indexEdge = indexEdge1;
-            indexEdge1 = indexEdge2;
-            indexEdge2 = indexEdge;
-        }
-
-        // Get edges to swap by their position
-        Edge edge1 = solution.getRoads().get(roadSelected).getEdges().get(indexEdge1);
-        Edge edge2 = solution.getRoads().get(roadSelected).getEdges().get(indexEdge2);
-
-        // Clone the roads and destinations
-        ArrayList<Road> roads = (ArrayList<Road>) solution.getRoads().clone();
-        Road road = roads.get(roadSelected).clone();
-        ArrayList<Edge> edges = (ArrayList<Edge>) road.getEdges().clone();
-
-        /*int posEdge1 = edge1.getPosEdge();
-        int posEdge2 = edge2.getPosEdge();*/
-
-        // Swap edges in the road
-        Road roadGenerated = swapEdges(solution, edges, roadSelected, indexEdge1, indexEdge2, edge1, edge2);
-
-        if (roadGenerated == null)
+        if (indexClient2==0 || indexClient2 >= solution.getRoads().get(selectedRoad2).getDestinations().size()-1)
             return null;
 
-        // Create the candidate solution and set road
-        Solution candidateSolution = solution.clone();
-        candidateSolution.getRoads().set(roadSelected, roadGenerated);
-        candidateSolution.setTotalDistanceCovered();
+        if (indexClient1 == indexClient2)
+            return null;
 
-        result = new Result(candidateSolution, transformation);
+
+        Solution neighbor = solution.clone();
+        Road road1 = neighbor.getRoads().get(selectedRoad1);
+        Road road2 = neighbor.getRoads().get(selectedRoad2);
+
+        ArrayList<Destination> destinations1 = road1.getDestinations();
+        ArrayList<Destination> destinations2 = road2.getDestinations();
+
+        ArrayList<Destination> newDestinations1 = getSubList(destinations1, 0, indexClient1);
+        ArrayList<Destination> subList1NewClient1End = getSubList(destinations2, indexClient2+1, destinations2.size()-1);
+        newDestinations1.addAll(subList1NewClient1End);
+
+        ArrayList<Destination> newDestinations2 = getSubList(destinations2, 0, indexClient2);
+        ArrayList<Destination> subListNewClient2End = getSubList(destinations1, indexClient1+1, destinations1.size()-1);
+        newDestinations2.addAll(subListNewClient2End);
+
+
+        neighbor.getRoads().get(selectedRoad1).setDestinations(newDestinations1);
+        neighbor.getRoads().get(selectedRoad2).setDestinations(newDestinations2);
+
+        neighbor = verifyIfRoadValid(neighbor, selectedRoad1);
+        if (neighbor == null)
+            return null;
+
+        neighbor = verifyIfRoadValid(neighbor, selectedRoad2);
+
+        if (neighbor == null)
+            return null;
+
+        Transformation transformation = new Transformation("Cross-exchange", selectedRoad1, selectedRoad2, indexClient1, indexClient2);
+        neighbor.reCalculateTotalDistanceCovered();
+
+        Result result = new Result(neighbor, transformation);
         return result;
 
-    }
-
-    private static Road exchangeEdgeBetweenTwoRoads(Solution solution,  int roadSelected,Road otherRoad,
-                                                      int posEdge1,int posEdge2, Destination departClient, Destination arriveClient)
-    {
-        Road roadToReturn;
-        int distance;
-        int time;
-        int capacityRemained;
-
-
-
-
-        if (posEdge1 == 0)
-        {
-            roadToReturn = new Road();
-            // Add the depot and the first client if the first edge to swap is the first edge of the road
-            Edge edge = new Edge(solution.getConfig().getCentralDepot());
-            distance = 0;
-            time = 0;
-            capacityRemained = solution.getConfig().getTruck().getCapacity();
-            roadToReturn.addDestinationsToRoad(departClient, edge);
-
-        }
-        else
-        {
-            roadToReturn = generateRoadNotChanged(solution.getRoads().get(roadSelected), posEdge1);
-            distance = roadToReturn.getDistance();
-            time = roadToReturn.getTime();
-            capacityRemained = solution.getConfig().getTruck().getCapacity() - roadToReturn.getCapacityDelivered();
-            // Add the first client if the first edge to swap is not the first edge of the road
-            roadToReturn.getDestinations().add(posEdge1, departClient);
-
-        }
-
-        // Exchange the clients between the two roads
-        if (arriveClient instanceof Depot)
-        {
-            roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
-            return roadToReturn;
-        }
-        roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, posEdge1);
-
-        if (roadToReturn == null)
-            return null;
-
-        // Get clients delivered after the second client to swap from the second road
-        for (int i = posEdge2+1; i < otherRoad.getEdges().size(); i++)
-        {
-            departClient =  roadToReturn.getDestinations().get(roadToReturn.getDestinations().size()-1);
-            arriveClient = otherRoad.getDestinations().get(i+1);
-
-            if (arriveClient instanceof Depot)
-            {
-                roadToReturn = SolutionUtils.addDepotToSwappedRoad(roadToReturn, solution, distance);
-                return roadToReturn;
-            }
-
-            time = roadToReturn.getTime();
-            distance = roadToReturn.getDistance();
-            capacityRemained = solution.getConfig().getTruck().getCapacity() - roadToReturn.getCapacityDelivered();
-
-            roadToReturn = resetEdge(departClient, arriveClient, time, distance, capacityRemained, roadToReturn, i);
-
-            if (roadToReturn == null)
-            {
-                //System.out.println("La route est null");
-                return null;
-            }
-
-
-        }
-
-
-
-        return roadToReturn;
-
-    }
-
-    public static Result runCrossExchange(Solution solutionInit, int roadSelected1, int roadSelected2, int indexEdge1, int indexEdge2)
-    {
-
-        // Road verification
-
-        if (roadSelected1 == roadSelected2 || (indexEdge1 == 0&&indexEdge2==0))
-            return null;
-        if (indexEdge1==0 && indexEdge2==solutionInit.getRoads().get(roadSelected2).getEdges().size()-1)
-            return null;
-        if (indexEdge2==0 && indexEdge1==solutionInit.getRoads().get(roadSelected1).getEdges().size()-1)
-            return null;
-
-        // Get roads
-        ArrayList<Road> roads = solutionInit.getRoads();
-        Road road1 = roads.get(roadSelected1);
-        Road road2 = roads.get(roadSelected2);
-
-        //Destinations
-        Destination departClientRoad1 = road1.getDestinations().get(indexEdge1);
-        Destination arriveClientRoad1 = road1.getDestinations().get(indexEdge1+1);
-        Destination departClientRoad2 = road2.getDestinations().get(indexEdge2);
-        Destination arriveClientRoad2 = road2.getDestinations().get(indexEdge2+1);
-
-        // Exchange
-        Road road1Generated = exchangeEdgeBetweenTwoRoads(solutionInit,  roadSelected1, road2,indexEdge1,indexEdge2, departClientRoad1, arriveClientRoad2);
-        Road road2Generated = exchangeEdgeBetweenTwoRoads(solutionInit,  roadSelected2, road1,indexEdge2, indexEdge1,departClientRoad2, arriveClientRoad1);
-
-        if (road1Generated == null)
-           return null;
-
-        if (road2Generated == null)
-            return null;
-
-        // Create the candidate solution and set road
-        Solution candidateSolution = solutionInit.clone();
-        candidateSolution.getRoads().set(roadSelected1, road1Generated);
-        candidateSolution.getRoads().set(roadSelected2, road2Generated);
-
-        candidateSolution.setTotalDistanceCovered();
-        Result result;
-        Transformation transformation = new Transformation(-1, -1, roadSelected1, roadSelected2, indexEdge1, indexEdge2);
-        result = new Result(candidateSolution, transformation);
-
-        return result;
     }
 
 
@@ -372,33 +146,27 @@ public class TwoOptAndCrossExchange {
      */
     public static void generateAllNeighbors2Opt(Solution solution)
     {
-        int iter = 1;
         for (int selectedRoad = 0; selectedRoad < solution.getRoads().size(); selectedRoad++)
         {
 
-            for (int i =0 ; i < solution.getRoads().get(selectedRoad).getEdges().size()-1; i++)
+            for (int i =0 ; i < solution.getRoads().get(selectedRoad).getDestinations().size()-1; i++)
             {
-                for (int j = i+2; j < solution.getRoads().get(selectedRoad).getEdges().size() ; j++)
+                for (int j = i+2; j < solution.getRoads().get(selectedRoad).getDestinations().size()-1 ; j++)
                 {
-                    System.out.println("Iteration : "+iter);
                     Result map = TwoOptAndCrossExchange.runTwoOpt(solution, selectedRoad, i, j);
 
-                    Solution solutionNeighbour = map.getSolution();
-                    if (solutionNeighbour == null)
+                    if (map == null)
+                    {
                         continue;
+                    }
+                    Solution solutionNeighbour = map.getSolution();
+
 
                     if (solutionNeighbour.getRoads().get(selectedRoad)!=null)
                     {
-
-                        System.out.println("Road selected : "+selectedRoad);
-                        System.out.println("Echange entre les aretes : "+solution.getRoads().get(selectedRoad).getEdges().get(i)+
-                                " et : "+solution.getRoads().get(selectedRoad).getEdges().get(j));
-                        //solutionNeighbour.displaySolution();
                         solutionNeighbour.getRoads().get(selectedRoad).toString();
                         SolutionVisualization.DisplayGraph(solutionNeighbour, "Solution 2-opt");
                     }
-                    iter++;
-
                 }
             }
         }
@@ -412,27 +180,21 @@ public class TwoOptAndCrossExchange {
         {
             for (int selectedRoad2 = selectedRoad+1; selectedRoad2 < solution.getRoads().size(); selectedRoad2++)
             {
-                for (int i =0 ; i < solution.getRoads().get(selectedRoad).getEdges().size(); i++)
+                for (int i =0 ; i < solution.getRoads().get(selectedRoad).getDestinations().size()-1; i++)
                 {
-                    for (int j =0; j < solution.getRoads().get(selectedRoad2).getEdges().size(); j++)
+                    for (int j =0; j < solution.getRoads().get(selectedRoad2).getDestinations().size()-1; j++)
                     {
 
-                        Solution solutionNeighbour = runCrossExchange(solution, selectedRoad, selectedRoad2, i, j).getSolution();
+                        Result res = runCrossExchange(solution, selectedRoad, selectedRoad2, i, j);
+                        if (res == null)
+                            continue;
+                        Solution solutionNeighbour = res.getSolution();
                         if (solutionNeighbour != null)
                         {
                             System.out.println("Roads selected : "+selectedRoad+" et "+selectedRoad2);
-                            System.out.println("Edges selected : "+i+" et "+j);
-                            System.out.println("Echange entre les aretes : "+solution.getRoads().get(selectedRoad).getEdges().get(i)+
-                                    " et : "+solution.getRoads().get(selectedRoad2).getEdges().get(j));
                             //solutionNeighbour.displaySolution();
-                            solutionNeighbour.getRoads().get(selectedRoad).toString();
-                            System.out.println("----------------------------------------------------");
-                            solutionNeighbour.getRoads().get(selectedRoad2).toString();
                             System.out.println("Distance totale parcourue : "+solutionNeighbour.getTotalDistanceCovered());
-                            //SolutionVisualization.DisplayGraph(solutionNeighbour, "Cross-exchange");
-                            SolutionUtils.verifyIfAClientAppearsTwoTimesInARoad(solution, "Cross-exchange done");
-
-                            System.out.println("FIIIIN");
+                            SolutionVisualization.DisplayGraph(solutionNeighbour, "Cross-exchange");
 
                         }
                     }

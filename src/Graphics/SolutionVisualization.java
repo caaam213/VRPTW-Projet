@@ -177,8 +177,8 @@ public class SolutionVisualization {
                     if (edge == null || !(edge instanceof mxCell)) {
                         continue;
                     }
-                    mxCell source = (mxCell) graph.getModel().getTerminal(edge, false);
-                    mxCell target = (mxCell) graph.getModel().getTerminal(edge, true);
+                    mxCell source = (mxCell) graph.getModel().getTerminal(edge, true);
+                    mxCell target = (mxCell) graph.getModel().getTerminal(edge, false);
 
 
 

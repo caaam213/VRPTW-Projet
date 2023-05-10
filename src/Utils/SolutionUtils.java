@@ -1,11 +1,9 @@
 package Utils;
 
-import Graphics.SolutionVisualization;
 import Logistique.Client;
 import Logistique.Configuration;
 import Logistique.Depot;
 import Logistique.Destination;
-import Metaheuristique.Edge;
 import Metaheuristique.Road;
 import Metaheuristique.Solution;
 
@@ -118,6 +116,7 @@ public class SolutionUtils {
             time = client.getReadyTime();
         else
             time += distanceBetweenTwoDestinations;
+
         if (client instanceof Client)
         {
             time+= ((Client) client).getService();
@@ -136,10 +135,9 @@ public class SolutionUtils {
      * @param time : the time
      * @param distance : the distance
      * @param capacity : the capacity
-     * @param posEdge : the position of the edge
      * @return an array with the time, distance, capacity and distance between two destinations
      */
-    public static int[] calculateInfos(Road road, Destination client, int time, int distance, int capacity, int posEdge)
+    public static int[] calculateInfos(Road road, Destination client, int time, int distance, int capacity)
     {
         int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(road.getDestinations().get(road.getDestinations().size()-1), client);
 
@@ -153,51 +151,6 @@ public class SolutionUtils {
         }
 
         return new int[]{time, distance, capacity, distanceBetweenTwoDestinations};
-    }
-
-    /**
-     * Calculate the road
-     * @param client : the client
-     * @param time : the time
-     * @param distance : the distance
-     * @param capacity : the capacity
-     * @param road : the road
-     * @param edge : the edge
-     * @param posEdge : the position of the edge
-     * @return the road
-     */
-    public static Road calculateRoad(Destination client, int time, int distance, int capacity, Road road, Edge edge, int posEdge, boolean addClientToRoad)
-    {
-        int[] infos = calculateInfos(road, client, time, distance, capacity, posEdge);
-        time = infos[0];
-        distance = infos[1];
-        capacity = infos[2];
-        int distanceBetweenTwoDestinations = infos[3];
-
-        edge.setArriveClient(client);
-        edge.setDistance(distanceBetweenTwoDestinations);
-        edge.setTime(time);
-        if (client instanceof Client)
-            edge.setQuantityDelivered(((Client) client).getDemand());
-        edge.setPosEdge(posEdge);
-
-        if (addClientToRoad)
-        {
-            road.addDestinationsToRoad(client,edge);
-        }
-        else
-        {
-            road.getEdges().add(edge);
-            distance += edge.getDistance();
-            time = edge.getTime();
-            capacity += edge.getQuantityDelivered();
-        }
-
-        road.setTime(time);
-        road.setDistance(distance);
-        road.setCapacityDelivered(capacity);
-
-        return road;
     }
 
     private static Destination getNearestClient(ArrayList<Client> clientsNotDeliveredToManageDueTime, Destination startClient, int time, int capacity)
@@ -235,10 +188,8 @@ public class SolutionUtils {
         Road road = new Road();
         int distanceBetweenTwoDestinations;
 
+        road.getDestinations().add(conf.getCentralDepot()); //Add depot to the road
 
-        Edge edge = new Edge(conf.getCentralDepot());
-        road.addDestinationsToRoad(conf.getCentralDepot(),edge); //Add depot to the road
-        int posEdge = 0;
 
         Client client;
         while (clientsNotDelivered.size() > 0) {
@@ -265,101 +216,49 @@ public class SolutionUtils {
                 // If time is before the ready time, we wait until the ready time
 
 
-                road = calculateRoad(client, time, distance, capacityRemained, road, edge, posEdge, true);
-                posEdge++;
-                edge = new Edge(client);
+                int infos[] = calculateInfos(road, client, time, distance, capacityRemained);
+                time = infos[0];
+                distance = infos[1];
+                capacityRemained = infos[2];
+                road.getDestinations().add(client); // Add the client to the road
                 clientsNotDelivered.remove(client);
-                time = road.getTime();
-                distance = road.getDistance();
-                capacityRemained = road.getCapacityDelivered();
+
 
             } else {
                 // If the client can't be delivered, we add the depot to the road and we create a new road
-                int[] calculateTotalDistance = calculateDistanceBetweenTheLastClientAndDepot(road, conf, distance);
-                distanceBetweenTwoDestinations = calculateTotalDistance[1];
-                road = addInfoToRoad(conf, distanceBetweenTwoDestinations,road,edge,time+distanceBetweenTwoDestinations, posEdge);
 
+                road.getDestinations().add(conf.getCentralDepot());
                 solution.addRoads(road); // Add the road to the solution
 
                 road = new Road();
-                edge = new Edge(conf.getCentralDepot());
-
-                road.addDestinationsToRoad(conf.getCentralDepot(), edge);
+                road.getDestinations().add(conf.getCentralDepot()); //Add depot to the road
                 time = 0;
 
                 distance = 0;
                 capacityRemained = conf.getTruck().getCapacity();
-                posEdge = 0;
 
 
             }
         }
         if (road.getDestinations().size() > 1)
         {
-            int[] calculateTotalDistance = calculateDistanceBetweenTheLastClientAndDepot(road, conf, distance);
-            distanceBetweenTwoDestinations = calculateTotalDistance[1];
-            road = addInfoToRoad(conf, distanceBetweenTwoDestinations,road,edge,time+distanceBetweenTwoDestinations, posEdge);
-
+            road.getDestinations().add(conf.getCentralDepot());
             solution.addRoads(road); // Add the road to the solution
         }
-        solution.setTotalDistanceCovered(); // Set the total distance covered by the solution
+        solution.reCalculateTotalDistanceCovered(); // Set the total distance covered by the solution
         solution.setConfig(conf); // Set the configuration of the solution
 
         return solution;
     }
 
-    /**
-     * Calculate the distance from a client to the depot
-     * @param road : the road
-     * @param conf : the configuration
-     * @param distance : the distance
-     * @return an array with the distance and the distance between two destinations
-     */
-    public static int[] calculateDistanceBetweenTheLastClientAndDepot(Road road, Configuration conf, int distance)
+
+
+    public static Road addDepotToSwappedRoad(Road roadToReturn, Solution solution)
     {
-        int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(
-                road.getDestinations().get(road.getDestinations().size()-1),
-                conf.getCentralDepot());
-        distance += distanceBetweenTwoDestinations;
-
-        int[] returnTab = new int[2];
-        returnTab[0] = distance;
-        returnTab[1] = distanceBetweenTwoDestinations;
-
-        return returnTab;
-    }
-
-    /**
-     * Add info to the road (time, distance, depot) and return the road
-     * @param conf : the configuration
-     * @param distanceBetweenTwoDestinations : the distance between two destinations
-     * @param road : the road
-     * @param edge : the edge
-     * @param time : the time
-     * @param posEdge : the position of the edge
-     * @return the road
-     */
-    public static Road addInfoToRoad(Configuration conf, int distanceBetweenTwoDestinations,  Road road, Edge edge,int time,  int posEdge) {
-        edge.setArriveClient(conf.getCentralDepot());
-        edge.setTime(time);
-        edge.setPosEdge(posEdge);
-        road.addDestinationsToRoad(conf.getCentralDepot(),edge); //Add return to the depot
-        road.setTime(edge.getTime());
-        road.setDistance(road.getDistance());
-
-        return road;
-    }
-
-    public static Road addDepotToSwappedRoad(Road roadToReturn, Solution solution, int distance)
-    {
-        int[] calculateTotalDistance = SolutionUtils.calculateDistanceBetweenTheLastClientAndDepot(roadToReturn, solution.getConfig(), distance);
-        int distanceBetweenTwoDestinations = calculateTotalDistance[1];
-
         // If the depot is not added, then it is added
-        if (!roadToReturn.getEdges().get(roadToReturn.getEdges().size()-1).getArriveClient().getIdName().equals(solution.getConfig().getCentralDepot().getIdName()))
+        if (!roadToReturn.getDestinations().get(roadToReturn.getDestinations().size()-1).getIdName().equals(solution.getConfig().getCentralDepot().getIdName()))
         {
-            Edge endEdge = new Edge(roadToReturn.getDestinations().get(roadToReturn.getDestinations().size()-1), solution.getConfig().getCentralDepot());
-            roadToReturn = SolutionUtils.addInfoToRoad(solution.getConfig(), distanceBetweenTwoDestinations,roadToReturn,endEdge, roadToReturn.getTime()+distanceBetweenTwoDestinations, roadToReturn.getDestinations().size()-1);
+            roadToReturn.getDestinations().add(solution.getConfig().getCentralDepot());
         }
         return roadToReturn;
     }

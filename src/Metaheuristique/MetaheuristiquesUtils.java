@@ -49,12 +49,15 @@ public class MetaheuristiquesUtils {
         Result sol = null;
         switch(method) {
             case 1:
-                //sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
+                System.out.println("Exchange intra");
+                sol = Exchange.Exchange(solution,firstClientRoad, newIndexClient, indexClient);
                 break;
             case 2:
+                System.out.println("Exchange inter");
                 sol = Exchange.ExchangeInter(solution,firstClientRoad, secondClientRoad, newIndexClient, indexClient);
                 break;
             case 3:
+                System.out.println("Relocate intra");
                 sol = Relocate.RelocateIntra(solution, firstClientRoad, newIndexClient, indexClient);
                 break;
             case 4:
