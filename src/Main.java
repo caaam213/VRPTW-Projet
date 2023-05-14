@@ -2,9 +2,14 @@ import Graphics.SolutionVisualization;
 import Logistique.Configuration;
 import Metaheuristique.Genetics.Crossover;
 import Metaheuristique.Genetics.GeneticMethod;
+import Metaheuristique.MetaheuristiquesUtils;
 import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
 import Metaheuristique.Solution;
+import Metaheuristique.Taboo.Result;
+import Metaheuristique.Taboo.TabooMethod;
 import Utils.SolutionUtils;
+import java.util.HashSet;
+import static Metaheuristique.MetaheuristiquesUtils.GetAllNeighbors;
 
 public class Main {
     public static void displayExecutionTime(long duration)
@@ -28,16 +33,32 @@ public class Main {
             System.out.println("Solution initiale : ");
             solution.displaySolution();
 
+            Solution sol = TabooMethod.TabouSearch(solution.clone());
+            SolutionVisualization.DisplayGraph(sol, "Taboo");
 
-            Solution sol = GeneticMethod.runGeneticMethod(solution.clone(), 150, 2000, 0.33F, 20);
-            if (sol == null)
+            /**
+            //Solution sol = GeneticMethod.runGeneticMethod(solution.clone(), 150, 2000, 0.33F, 20);
+            if (solution == null)
                 System.out.println("Solution null");
             else
             {
-                System.out.println("SOLUTION OPTIMALE TROUVEE :");
-                SolutionVisualization.DisplayGraph(sol, "Crossover");
-                sol.displaySolution();
+                HashSet<Result> res = MetaheuristiquesUtils.GetAllNeighbors(solution);
+                System.out.println("Count : " + res.size());
+                for(Result r : res)
+                {
+                    if( r == null) {
+                        System.out.println("Solution null");
+                        continue;
+                    }
+                    else {
+                        SolutionVisualization.DisplayGraph(r.getSolution(), "Solution");
+                    }
+                }
+                //System.out.println("SOLUTION OPTIMALE TROUVEE :");
+                //SolutionVisualization.DisplayGraph(sol, "Crossover");
+                //sol.displaySolution();
             }
+             **/
             //TwoOptAndCrossExchange.generateAllNeighbors2Opt(solution);
             /*for (int j = 0; j < solution.getRoads().size(); j++)
                 for (int m = j+1; m < solution.getRoads().size(); m++)

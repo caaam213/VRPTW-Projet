@@ -14,6 +14,10 @@ public class Result {
         this.transformation = transformation;
     }
 
+    public Result(Solution solution) {
+        this.solution = solution;
+    }
+
     public Solution getSolution() {
         return solution;
     }

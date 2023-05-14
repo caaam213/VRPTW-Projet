@@ -6,6 +6,7 @@ import Metaheuristique.Taboo.Result;
 import Metaheuristique.Taboo.TabooMethod;
 import Metaheuristique.Taboo.Transformation;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 public class MetaheuristiquesUtils {
@@ -15,33 +16,78 @@ public class MetaheuristiquesUtils {
 
     public static Result methodeDeDesecente(Solution x0, ArrayList<Transformation> tabooList)
     {
-        int i = -1;
-        Solution xi = x0.clone();
-        Solution xi1 = new Solution();
-        ArrayList<Result> voisinsXi1 = new ArrayList<Result>();
+        Solution x1 = x0.clone();
+        Transformation t1 = null;
+        ArrayList<Solution> degradedSolution = new ArrayList<Solution>();
+        int bestDegradedFitness = 0;
+        Solution bestDegradedSolution = x0.clone();
+        ArrayList<Solution> egualSolutions = new ArrayList<Solution>();
+        ArrayList<Result> voisinsXi1;
         do
         {
-            ArrayList<Result> voisins = AllNeighbors(xi);
+            HashSet<Result> voisins = GetAllNeighbors(x0);
+            //voisinsXi1 = new ArrayList<>(voisins);
             ArrayList<Solution> candidats = TabooMethod.SolutionWithoutForbidenTransformation(voisins, tabooList);
             for(Solution candidat : candidats)
             {
-                if (fitness(candidat) < fitness(xi1))
+                if(fitness(candidat) == 0)
+                    continue;
+                System.out.println("Fitness candidat : " + fitness(candidat));
+                System.out.println("Fitness xi1 : " + fitness(x1));
+                if (fitness(candidat) < fitness(x1))
                 {
-                    xi1 = candidat.clone();
-                    voisinsXi1 = voisins;
+                    x1 = candidat.clone();
+                }
+                if (fitness(candidat) == fitness(x1))
+                {
+                    egualSolutions.add(candidat.clone());
+                }
+                else {
+                    degradedSolution.add(candidat.clone());
+                    if(fitness(candidat) < bestDegradedFitness)
+                    {
+                        bestDegradedFitness = fitness(candidat);
+                        bestDegradedSolution = candidat.clone();
+                    }
                 }
             }
-            xi = xi1;
-            i = i + 1;
-        } while ( fitness(xi1) < fitness(xi));
-        Transformation t = null;
-        for( Result voisin : voisinsXi1)
-        {
-            if( xi1 == voisin.getSolution())
-                t = voisin.getTransformation();
-
+        } while ( fitness(x1) >= fitness(x0));
+        int fitenessxi1 = fitness(x1);
+        int fitnessdegraded = fitness(bestDegradedSolution);
+        /**
+        if( x1 != null){
+            for( Result voisin : voisinsXi1 )
+            {
+                if (voisin == null)
+                    continue;
+                if( x1 == voisin.getSolution())
+                    t = voisin.getTransformation();
+            }
         }
-        Result result = new Result(xi1, t);
+        else if ( bestDegradedSolution != null)
+        {
+            x1 = bestDegradedSolution;
+            for( Result voisin : voisinsXi1)
+            {
+                if( x1 == voisin.getSolution())
+                    t = voisin.getTransformation();
+            }
+        }
+        else {
+            for ( Solution egualSolution : egualSolutions)
+            {
+                int random = (int) (Math.random() * (egualSolutions.size() - 1));
+                x1 = egualSolutions.get(random);
+                for( Result voisin : voisinsXi1)
+                {
+                    if( x1 == voisin.getSolution())
+                        t = voisin.getTransformation();
+
+                }
+            }
+        }
+         **/
+        Result result = new Result(x1);
         return result;
     }
 
@@ -122,11 +168,32 @@ public class MetaheuristiquesUtils {
         return neighbors;
     }
 
-    public static ArrayList<Result> AllNeighbors(Solution initialSol)
+    public static HashSet<Result> GetAllNeighbors(Solution initialSol)
     {
+        HashSet<Result> set = new HashSet<>();
         ArrayList<Result> list1 = searchAllCandidatesIntra(initialSol);
         ArrayList<Result> list2 = searchAllCandidatesInter(initialSol);
-        list1.addAll(list2);
-        return list1;
+        set.addAll(list1);
+        set.addAll(list2);
+        return set;
+    }
+
+    public static Solution GetBestNeighbor(Solution initialSol, HashSet<Result> neighbors)
+    {
+        Solution bestNeighbor = null;
+        int bestFitness = initialSol.getTotalDistanceCovered();
+        for(Result neighbor : neighbors)
+        {
+            if(neighbor.getSolution() != null)
+            {
+                int fitness = fitness(neighbor.getSolution());
+                if(fitness < bestFitness)
+                {
+                    bestFitness = fitness;
+                    bestNeighbor = neighbor.getSolution();
+                }
+            }
+        }
+        return bestNeighbor;
     }
 }

@@ -10,12 +10,9 @@ import Graphics.SolutionVisualization;
 import Utils.SolutionUtils;
 
 public class Road implements Cloneable{
-
     private ArrayList<Destination> destinations;
-
     private static int nbRoad = 1;
     private int idRoad;
-
     private String color;
 
     public Road() {
