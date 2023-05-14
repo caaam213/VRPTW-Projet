@@ -8,6 +8,9 @@ import Metaheuristique.Solution;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static Metaheuristique.MetaheuristiquesUtils.fitness;
+import static Metaheuristique.MetaheuristiquesUtils.methodeDeDesecente;
+
 
 public class TabooMethod {
 
@@ -26,34 +29,55 @@ public class TabooMethod {
         return cleanVoisins;
     }
 
-
     public static Solution TabouSearch(Solution x0) {
         if (x0 == null) {
             return null;
         }
-        Solution xmin = x0.clone();
-        int fmin = MetaheuristiquesUtils.fitness(xmin);
+        Solution bestSolution  = x0.clone();
+        int fmin = fitness(bestSolution );
         int maxIter = 30;
         ArrayList<Transformation> tabooList = new ArrayList<>();
-        Solution xi = x0.clone();
-        Result xi1 = new Result();
-
+        Solution currentSolution  = x0.clone();
+        Transformation transformation = null;
         for (int i = 0; i < maxIter; i++) {
-            xi1 = MetaheuristiquesUtils.methodeDeDesecente(xi, tabooList);
-            int lambdaF = MetaheuristiquesUtils.fitness(xi1.solution) - MetaheuristiquesUtils.fitness(xi);
-            if (lambdaF >= 0) {
-                tabooList.add(xi1.transformation);
+            // Récupération des voisins de la solution courante
+            HashSet<Result> neighbors = MetaheuristiquesUtils.GetAllNeighbors(currentSolution );
+
+            // Filtrage des voisins interdits par la liste tabou
+            ArrayList<Solution> filteredNeighbors = new ArrayList<Solution>();
+            ArrayList<Result> neighborsSolutions = new ArrayList<Result>(neighbors);
+            for (Result neighbor : neighborsSolutions) {
+                if (!tabooList.contains(neighbor.getSolution())) {
+                    filteredNeighbors.add(neighbor.getSolution());
+                }
             }
-            if (MetaheuristiquesUtils.fitness(xi1.solution) < fmin) {
-                xmin = xi1.solution.clone();
-                fmin = MetaheuristiquesUtils.fitness(xmin);
+
+            // Recherche de la meilleure solution voisine
+            Solution bestNeighbor = null;
+
+            for (Solution neighbor : filteredNeighbors) {
+                if (bestNeighbor == null || fitness(neighbor) < fitness(bestNeighbor)) {
+                    bestNeighbor = neighbor;
+                }
             }
-            // On retire le dernier élément ajouté si la liste est pleine
+
+            // Mise à jour de la solution courante et de la meilleure solution
+            currentSolution = bestNeighbor;
+            if (fitness(bestNeighbor) < fitness(bestSolution)) {
+                bestSolution = bestNeighbor;
+            }
+
+            for (Result neighbor : neighborsSolutions) {
+                if( neighbor.getSolution().equals(currentSolution)) {
+                    transformation = neighbor.getTransformation();
+                }
+            }
+            // Ajout de la solution courante à la liste tabou
+            tabooList.add(transformation);
             if (tabooList.size() > tabuSize) {
                 tabooList.remove(0);
             }
-            xi = xi1.solution.clone();
         }
-        return xmin;
+        return bestSolution ;
     }
 }

@@ -18,75 +18,20 @@ public class MetaheuristiquesUtils {
     {
         Solution x1 = x0.clone();
         Transformation t1 = null;
-        ArrayList<Solution> degradedSolution = new ArrayList<Solution>();
-        int bestDegradedFitness = 0;
-        Solution bestDegradedSolution = x0.clone();
-        ArrayList<Solution> egualSolutions = new ArrayList<Solution>();
-        ArrayList<Result> voisinsXi1;
         do
         {
             HashSet<Result> voisins = GetAllNeighbors(x0);
-            //voisinsXi1 = new ArrayList<>(voisins);
-            ArrayList<Solution> candidats = TabooMethod.SolutionWithoutForbidenTransformation(voisins, tabooList);
-            for(Solution candidat : candidats)
+            for(Result candidat : voisins)
             {
-                if(fitness(candidat) == 0)
+                if(fitness(candidat.getSolution()) == 0)
                     continue;
-                System.out.println("Fitness candidat : " + fitness(candidat));
-                System.out.println("Fitness xi1 : " + fitness(x1));
-                if (fitness(candidat) < fitness(x1))
+
+                if (fitness(candidat.getSolution()) < fitness(x1))
                 {
-                    x1 = candidat.clone();
-                }
-                if (fitness(candidat) == fitness(x1))
-                {
-                    egualSolutions.add(candidat.clone());
-                }
-                else {
-                    degradedSolution.add(candidat.clone());
-                    if(fitness(candidat) < bestDegradedFitness)
-                    {
-                        bestDegradedFitness = fitness(candidat);
-                        bestDegradedSolution = candidat.clone();
-                    }
+                    x1 = candidat.getSolution().clone();
                 }
             }
         } while ( fitness(x1) >= fitness(x0));
-        int fitenessxi1 = fitness(x1);
-        int fitnessdegraded = fitness(bestDegradedSolution);
-        /**
-        if( x1 != null){
-            for( Result voisin : voisinsXi1 )
-            {
-                if (voisin == null)
-                    continue;
-                if( x1 == voisin.getSolution())
-                    t = voisin.getTransformation();
-            }
-        }
-        else if ( bestDegradedSolution != null)
-        {
-            x1 = bestDegradedSolution;
-            for( Result voisin : voisinsXi1)
-            {
-                if( x1 == voisin.getSolution())
-                    t = voisin.getTransformation();
-            }
-        }
-        else {
-            for ( Solution egualSolution : egualSolutions)
-            {
-                int random = (int) (Math.random() * (egualSolutions.size() - 1));
-                x1 = egualSolutions.get(random);
-                for( Result voisin : voisinsXi1)
-                {
-                    if( x1 == voisin.getSolution())
-                        t = voisin.getTransformation();
-
-                }
-            }
-        }
-         **/
         Result result = new Result(x1);
         return result;
     }
