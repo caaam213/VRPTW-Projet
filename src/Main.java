@@ -73,7 +73,7 @@ public class Main {
         //CallTestNeighborsFunctions.testHashSetCreation();
 
         // TODO: Décommenter cette fonction pour tester si les transformations sont correctes
-        CallTestNeighborsFunctions.testTransformations();
+        //CallTestNeighborsFunctions.testTransformations();
 
         //////////////////////////////////////////////////////
 
