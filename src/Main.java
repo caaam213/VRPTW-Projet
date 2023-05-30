@@ -1,85 +1,84 @@
-import Graphics.SolutionVisualization;
-import Logistique.Configuration;
-import Metaheuristique.Genetics.Crossover;
-import Metaheuristique.Genetics.GeneticMethod;
-import Metaheuristique.MetaheuristiquesUtils;
-import Metaheuristique.NeighborOperators.TwoOptAndCrossExchange;
-import Metaheuristique.Solution;
-import Metaheuristique.Taboo.Result;
-import Metaheuristique.Taboo.TabooMethod;
-import Utils.SolutionUtils;
-import java.util.HashSet;
-import static Metaheuristique.MetaheuristiquesUtils.GetAllNeighbors;
+import CallableFunctions.*;
+
+import static CallableFunctions.CallTestNeighborsFunctions.testHashSetCreation;
+
 
 public class Main {
     public static void displayExecutionTime(long duration)
     {
-        // Convert time
+        // Convertir le temps
         int heures = (int) (duration / 3600000000000L);
         int minutes = (int) (duration / 60000000000L) % 60;
         int secondes = (int) (duration / 1000000000L) % 60;
 
-        // Display time
+        // Afficher le temps
         System.out.printf("Temps d'execution : %d heures, %d minutes, %d secondes", heures, minutes, secondes);
         System.out.println();
     }
 
-        public static void main(String[] args) {
-            Configuration config = new Configuration("101");
-            System.out.println("Nombre de vehicules minimal : " + config.getNumberOfMinimalVehicles());
-            System.out.println("Solution aleatoire generee : ");
-            Solution solution = SolutionUtils.generateRandomSolution(config, false);
-            System.out.println("Nombre de routes = " + solution.getRoads().size());
-            System.out.println("Solution initiale : ");
-            solution.displaySolution();
+    public static void main(String[] args) {
+        long startTime = System.nanoTime();
 
-            Solution sol = TabooMethod.TabouSearch(solution.clone());
-            SolutionVisualization.DisplayGraph(sol, "Taboo");
+        //////////////////////////////////////////////////////
+        // TODO : Décommenter cette fonction pour tester la méthode génétique
+        /*CallGenetic.runGeneticWBasicParameter("101", false, true,
+                60, 1000, 0.33f,
+                30, false,false, false);*/
 
-            /**
-            //Solution sol = GeneticMethod.runGeneticMethod(solution.clone(), 150, 2000, 0.33F, 20);
-            if (solution == null)
-                System.out.println("Solution null");
-            else
-            {
-                HashSet<Result> res = MetaheuristiquesUtils.GetAllNeighbors(solution);
-                System.out.println("Count : " + res.size());
-                for(Result r : res)
-                {
-                    if( r == null) {
-                        System.out.println("Solution null");
-                        continue;
-                    }
-                    else {
-                        SolutionVisualization.DisplayGraph(r.getSolution(), "Solution");
-                    }
-                }
-                //System.out.println("SOLUTION OPTIMALE TROUVEE :");
-                //SolutionVisualization.DisplayGraph(sol, "Crossover");
-                //sol.displaySolution();
-            }
-             **/
-            //TwoOptAndCrossExchange.generateAllNeighbors2Opt(solution);
-            /*for (int j = 0; j < solution.getRoads().size(); j++)
-                for (int m = j+1; m < solution.getRoads().size(); m++)
-                    for (int i = 1; i < solution.getARoad(j).getDestinations().size() - 1; i++) {
-                        for (int k = 1; k < solution.getARoad(m).getDestinations().size() - 1; k++) {
-                        Result voisin = Relocate.RelocateInter(solution, j, m, k, i);
-                        if (voisin == null) {
-                            System.out.println("Voisin null pour i = " + i + "et la route " + j);
-                            continue;
-                        } else {
-                            System.out.print("Bravo on est à i = " + i + "et la route " + j);
-                            for (Destination dest : voisin.getSolution().getARoad(0).getDestinations()) {
-                                System.out.println(dest.toString());
-                            }
-                            for (Edge edge : voisin.getSolution().getARoad(0).getEdges()) {
-                                System.out.print(edge.toString());
-                            }
-                            SolutionVisualization.DisplayGraph(voisin.getSolution(), "Voisin");
-                        }
-                    }
-                }
-        }*/
-        }
+        // TODO : Décommenter cette fonction pour tester la méthode tabou
+       /*CallTaboo.runTabooWBasicParameter("101", false, true,300,
+                50,1);*/
+
+        // TODO : Décommenter cette fonction pour avoir le nombre minimal de véhicules pour une configuration
+        //CallTestConstraints.displayMinimalNumberOfVehicles("101");
+
+        // TODO : Décommenter cette fonction pour tester la fonction de calcul de distance entre deux clients
+        //CallTestConstraints.calculateDistanceBetweenTwoDestination();
+
+        // TODO : Décommenter cette fonction pour tester la fonction de vérification des contraintes
+        //CallTestConstraints.testIfConstraintsAreRespected();
+
+        // TODO : Décommenter cette fonction pour tester le calcul des informations entre deux clients
+        //CallTestConstraints.testCalculateInfos();
+
+        // TODO : Décommenter cette fonction pour tester la fonction qui supprime les clients servis plus d'une fois
+        //CallTestCrossover.testRemoveClientServedMoreThanOnce();
+
+        // TODO : Décommenter cette fonction pour tester la fonction de crossover SBX
+        //CallTestCrossover.testCrossoverSBX();
+
+        // TODO : Décommenter cette fonction pour tester la fonction de crossover RBX
+        //CallTestCrossover.testCrossoverRBX();
+
+        // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Exchange-intra
+        //CallTestNeighborsFunctions.generateAllExchangeIntra(6,3,1);
+
+        // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Exchange-inter
+        //CallTestNeighborsFunctions.generateAllExchangeInter(6,3,1);
+
+        // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Relocate-intra
+        //CallTestNeighborsFunctions.generateAllRelocateIntra(6,3,1);
+
+        // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Relocate-inter
+        //CallTestNeighborsFunctions.generateAllRelocateInter(6,3,1);
+
+        // TODO : Décommenter cette fonction pour tester la génération de tous les voisins 2-opt
+        //CallTestNeighborsFunctions.generateAll2Opt(6,5,8);
+
+        // TODO : Décommenter cette fonction pour tester la génération de tous les voisins cross-exchange
+        //CallTestNeighborsFunctions.generateAllCrossExchange(6,3,1);
+
+        // TODO : Décommenter cette fonction pour tester la création d'un hashset dans le cas où les solutions sont
+        //  identiques
+        //CallTestNeighborsFunctions.testHashSetCreation();
+
+        // TODO: Décommenter cette fonction pour tester si les transformations sont correctes
+        CallTestNeighborsFunctions.testTransformations();
+
+        //////////////////////////////////////////////////////
+
+        long endTime = System.nanoTime();
+        displayExecutionTime(endTime - startTime);
+
+    }
 }

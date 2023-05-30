@@ -4,7 +4,7 @@ TYPE: vrptw
 COORDINATES: cartesian
 NB_DEPOTS: 1
 NB_CLIENTS: 100
-MAX_QUANTITY: 200
+MAX_QUANTITY: 20000
 
 DATA_DEPOTS [idName x y readyTime dueTime]:
 d1 35 35 0 230
