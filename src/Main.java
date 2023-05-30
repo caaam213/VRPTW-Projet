@@ -26,7 +26,7 @@ public class Main {
                 30, false,false, false);*/
 
         // TODO : Décommenter cette fonction pour tester la méthode tabou
-       /*CallTaboo.runTabooWBasicParameter("101", false, true,300,
+       /*CallTaboo.runTabooWBasicParameter("1202", false, true,1,
                 50,1);*/
 
         // TODO : Décommenter cette fonction pour avoir le nombre minimal de véhicules pour une configuration
@@ -63,7 +63,7 @@ public class Main {
         //CallTestNeighborsFunctions.generateAllRelocateInter(6,3,1);
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins 2-opt
-        //CallTestNeighborsFunctions.generateAll2Opt(6,5,8);
+        //CallTestNeighborsFunctions.generateAllTwoOpt(6,5,8);
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins cross-exchange
         //CallTestNeighborsFunctions.generateAllCrossExchange(6,3,1);

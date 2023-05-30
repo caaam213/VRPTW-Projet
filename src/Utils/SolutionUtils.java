@@ -72,7 +72,7 @@ public class SolutionUtils {
 
         if (arriveClient instanceof Client)
         {
-            // Si on vériie la contrainte de temps, on vérifie si time+distance > arriveClient.getDueTime()
+            // Si on vérifie la contrainte de temps, on vérifie si time+distance > arriveClient.getDueTime()
             int timeCalculated = time + distanceBetweenTwoDestination(startClient, arriveClient);
             if (timeConstraint) {
                 if (timeCalculated > arriveClient.getDueTime()) {
