@@ -1,12 +1,15 @@
 package CallableFunctions;
 
+import Graphics.SolutionVisualization;
 import Logistics.Configuration;
+import Metaheuristics.MetaheuristicUtils;
 import Metaheuristics.NeighborOperators.Exchange;
 import Metaheuristics.NeighborOperators.Relocate;
 import Metaheuristics.NeighborOperators.TwoOptAndCrossExchange;
 import Metaheuristics.Road;
 import Metaheuristics.Solution;
 import Metaheuristics.Taboo.Result;
+import Utils.SolutionUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,14 +81,49 @@ public class CallTestNeighborsFunctions {
         fakeSolution.setConfig(configuration);
     }
 
+    private static void initializeTestsIntra()
+    {
+        Configuration configuration = new Configuration("3");
+        fakeSolution = SolutionUtils.generateRandomSolution(configuration,false,false);
+        new SolutionVisualization().DisplayGraph(fakeSolution, "Solution base");
+        //Affichage des routes de base :
+        System.out.println("Routes de base : ");
+        for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size(); roadIndex++) {
+            System.out.println(fakeSolution.getRoads().get(roadIndex).toString());
+        }
+    }
 
+    private static void initializeTestsInter()
+    {
+        Configuration configuration = new Configuration("3");
+        Road road1 = new Road(1);
+        int roadLength1 = 8;
+        int roadLength2 = configuration.getClientsList().size();
+        Road road2 = new Road(2);
+        road1.getDestinations().add(configuration.getCentralDepot());
+        for (int i = 0; i < roadLength1; i++) {
+            road1.getDestinations().add(configuration.getClientsList().get(i));
+        }
+        road1.getDestinations().add(configuration.getCentralDepot());
+        System.out.println("Road 1 : "+road1.toString());
 
-    // Route 1
+        road2.getDestinations().add(configuration.getCentralDepot());
+        for (int i = roadLength1; i < roadLength2; i++) {
+            road2.getDestinations().add(configuration.getClientsList().get(i));
+        }
+        road2.getDestinations().add(configuration.getCentralDepot());
 
+        System.out.println("Road 2 : "+road2.toString());
+
+        fakeSolution = new Solution();
+        fakeSolution.getRoads().add(road1);
+        fakeSolution.getRoads().add(road2);
+        fakeSolution.setConfig(configuration);
+    }
 
     public static void generateAllExchangeIntra(int roadLength1, int roadLength2, int roadLength3)
     {
-        initializeTestVariables(roadLength1, roadLength2,roadLength3);
+        initializeTestsIntra();
         //Affichage des routes de base :
         System.out.println("Routes de base : ");
         for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size(); roadIndex++) {
@@ -107,7 +145,7 @@ public class CallTestNeighborsFunctions {
 
     public static void generateAllExchangeInter(int roadLength1, int roadLength2, int roadLength3)
     {
-        initializeTestVariables(roadLength1, roadLength2,roadLength3);
+        initializeTestsInter();
         for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size()-1; roadIndex++) {
             for (int roadIndex2 = roadIndex+1; roadIndex2< fakeSolution.getRoads().size(); roadIndex2++)
             {
@@ -133,7 +171,7 @@ public class CallTestNeighborsFunctions {
 
     public static void generateAllRelocateIntra(int roadLength1, int roadLength2, int roadLength3)
     {
-        initializeTestVariables(roadLength1, roadLength2,roadLength3);
+        initializeTestsIntra();
         for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size(); roadIndex++) {
 
             for (int destinationIndex1 = 0; destinationIndex1 < fakeSolution.getRoads().get(roadIndex).getDestinations().size(); destinationIndex1++) {
@@ -156,7 +194,7 @@ public class CallTestNeighborsFunctions {
 
     public static void GenerateAllRelocateInter(int roadLength1, int roadLength2, int roadLength3)
     {
-        initializeTestVariables(roadLength1, roadLength2,roadLength3);
+        initializeTestsInter();
         for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size(); roadIndex++) {
             for (int roadIndex2 = 0; roadIndex2< fakeSolution.getRoads().size(); roadIndex2++)
             {
@@ -181,16 +219,13 @@ public class CallTestNeighborsFunctions {
         }
     }
 
-    public static void generateAllTwoOpt(int roadLength1, int roadLength2, int roadLength3)
+    public static void generateAllTwoOpt()
     {
         // Si la différence des destinations vaut 2, alors on a un échange
-        initializeTestVariables(roadLength1, roadLength2,roadLength3);
-        //Affichage des routes de base :
-        System.out.println("Routes de base : ");
-        for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size(); roadIndex++) {
-            System.out.println(fakeSolution.getRoads().get(roadIndex).toString());
-        }
+        //initializeTestVariables(roadLength1, roadLength2,roadLength3);
+        initializeTestsIntra();
         System.out.println();
+        int counter = 0;
         for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size(); roadIndex++) {
 
             for (int destinationIndex1 = 0; destinationIndex1 < fakeSolution.getRoads().get(roadIndex).getDestinations().size()-1; destinationIndex1++) {
@@ -198,7 +233,9 @@ public class CallTestNeighborsFunctions {
                     Solution neighborSolution;
                     try
                     {
+                        counter++;
                         neighborSolution = TwoOptAndCrossExchange.runTwoOpt(fakeSolution, roadIndex, destinationIndex1, destinationIndex2, false,1).getSolution();
+                        new SolutionVisualization().DisplayGraph(neighborSolution, "TwoOpt");
                     }
                     catch(Exception e)
                     {
@@ -209,11 +246,16 @@ public class CallTestNeighborsFunctions {
 
             }
         }
+        System.out.println("Nombre de voisins générés : " + counter);
     }
 
-    public static void generateAllCrossExchange(int roadLength1, int roadLength2, int roadLength3)
+    public static void generateAllCrossExchange()
     {
-        initializeTestVariables(roadLength1, roadLength2,roadLength3);
+        //initializeTestVariables(roadLength1, roadLength2,roadLength3);
+
+        initializeTestsInter();
+        //fakeSolution = SolutionUtils.generateRandomSolution(configuration,false,false);
+        new SolutionVisualization().DisplayGraph(fakeSolution, "Solution base");
         for (int roadIndex = 0; roadIndex < fakeSolution.getRoads().size()-1; roadIndex++) {
             for (int roadIndex2 = roadIndex+1; roadIndex2< fakeSolution.getRoads().size(); roadIndex2++)
             {
@@ -224,6 +266,8 @@ public class CallTestNeighborsFunctions {
                         try
                         {
                             neighborSolution = TwoOptAndCrossExchange.runCrossExchange(fakeSolution, roadIndex,roadIndex2, destinationIndex1, destinationIndex2, false,1).getSolution();
+                            new SolutionVisualization().DisplayGraph(neighborSolution, "CrossExchange");
+
                         }
                         catch(Exception e)
                         {

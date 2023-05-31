@@ -51,22 +51,22 @@ public class Main {
         //CallTestCrossover.testCrossoverRBX();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Exchange-intra
-        //CallTestNeighborsFunctions.generateAllExchangeIntra(6,3,1);
+        //CallTestNeighborsFunctions.generateAllExchangeIntra();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Exchange-inter
-        //CallTestNeighborsFunctions.generateAllExchangeInter(6,3,1);
+        //CallTestNeighborsFunctions.generateAllExchangeInter();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Relocate-intra
-        //CallTestNeighborsFunctions.generateAllRelocateIntra(6,3,1);
+        //CallTestNeighborsFunctions.generateAllRelocateIntra();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins Relocate-inter
-        //CallTestNeighborsFunctions.generateAllRelocateInter(6,3,1);
+        //CallTestNeighborsFunctions.GenerateAllRelocateInter();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins 2-opt
-        //CallTestNeighborsFunctions.generateAllTwoOpt(6,5,8);
+        //CallTestNeighborsFunctions.generateAllTwoOpt();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins cross-exchange
-        //CallTestNeighborsFunctions.generateAllCrossExchange(6,3,1);
+        //CallTestNeighborsFunctions.generateAllCrossExchange();
 
         // TODO : Décommenter cette fonction pour tester la création d'un hashset dans le cas où les solutions sont
         //  identiques

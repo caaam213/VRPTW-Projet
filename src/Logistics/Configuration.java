@@ -124,6 +124,13 @@ public class Configuration {
     }
 
     /**
+     * @param clientsList : la liste des clients
+     */
+    public void setClientsList(ArrayList<Client> clientsList) {
+        this.clientsList = clientsList;
+    }
+
+    /**
      * @return la liste des noms des clients
      */
     public ArrayList<String> getListClientsName() {
