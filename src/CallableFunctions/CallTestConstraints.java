@@ -52,7 +52,7 @@ public class CallTestConstraints {
             Client client1 = configuration.getClientsList().get(i);
             Client client2 = configuration.getClientsList().get(i+1);
             int distanceBetweenTwoClients = SolutionUtils.distanceBetweenTwoDestination(client1, client2);
-            if(SolutionUtils.isClientCanBeDelivered(client1, client2, time, capacity, true) == respectedConstraints[i])
+            if(SolutionUtils.isClientCanBeDelivered(configuration.getCentralDepot(),client1, client2, time, capacity, true) == respectedConstraints[i])
             {
                 System.out.println("L'algorithme a bien detecte que la contrainte est  :" + respectedConstraints[i]);
             }

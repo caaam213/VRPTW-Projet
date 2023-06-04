@@ -20,7 +20,7 @@ import static java.lang.String.*;
 
 
 public class SolutionVisualization {
-    final int MULTIPLIER = 8;
+    final int MULTIPLIER = 9;
     final int HEIGHTANDWEIGHTVERTEX = 20;
 
     final int WIDTHFRAME = 1000;

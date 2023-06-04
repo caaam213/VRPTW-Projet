@@ -60,7 +60,7 @@ public class SolutionUtils {
      * @param timeConstraint : si on doit vérifier la contrainte de temps
      * @return true si les contraintes sont respectées, false sinon
      */
-    public static boolean isClientCanBeDelivered(Destination startClient, Destination arriveClient, int time, int capacity,
+    public static boolean isClientCanBeDelivered(Depot depot, Destination startClient, Destination arriveClient, int time, int capacity,
                                                  boolean timeConstraint)
     {
 
@@ -78,12 +78,19 @@ public class SolutionUtils {
                 if (timeCalculated > arriveClient.getDueTime()) {
                     return false;
                 }
+
+                // On vérifie que le temps est inférieur au temps de fermeture du dépot
+                if (timeCalculated > depot.getDueTime()) {
+                    return false;
+                }
             }
             // Vérifie si la capacité est suffisante
             if (((Client) arriveClient).getDemand() > capacity)
             {
                 return false;
             }
+
+
         }
         return true;
     }
@@ -100,12 +107,16 @@ public class SolutionUtils {
      * @param timeConstraint Si on doit vérifier la contrainte de temps
      * @return Le client à livrer
      */
-    public static Client selectClientMoreThoroughly(ArrayList<Client> clientsNotDeliveredToManageDueTime, Destination startClient, Client client, int time, int capacity, boolean timeConstraint)
+    public static Client selectClientMoreThoroughly(Configuration configuration,
+                                                    ArrayList<Client> clientsNotDeliveredToManageDueTime,
+                                                    Destination startClient, Client client, int time, int capacity,
+                                                    boolean timeConstraint)
     {
 
         while (clientsNotDeliveredToManageDueTime.size()>0)
         {
-            if (isClientCanBeDelivered(startClient,client,  time,  capacity, timeConstraint))
+            if (isClientCanBeDelivered(configuration.getCentralDepot(),
+                    startClient,client,  time,  capacity, timeConstraint))
             {
                 break;
             }
@@ -197,7 +208,7 @@ public class SolutionUtils {
 
         return new int[]{time, capacity, distance};
     }
-    private static Destination getNearestClient(ArrayList<Client> clientsNotDeliveredToManageDueTime, Destination startClient, int time, int capacity,
+    private static Destination getNearestClient(Configuration conf, ArrayList<Client> clientsNotDeliveredToManageDueTime, Destination startClient, int time, int capacity,
                                                 boolean timeConstraint)
     {
         Client nearestClient = getRandomClient(clientsNotDeliveredToManageDueTime);
@@ -205,7 +216,8 @@ public class SolutionUtils {
         for (Client client : clientsNotDeliveredToManageDueTime)
         {
             int distanceBetweenTwoDestinations = distanceBetweenTwoDestination(startClient, client);
-            if (distanceBetweenTwoDestinations < distance && isClientCanBeDelivered(startClient, client, time, capacity, timeConstraint))
+            if (distanceBetweenTwoDestinations < distance && isClientCanBeDelivered(conf.getCentralDepot(),
+                    startClient, client, time, capacity, timeConstraint))
             {
                 distance = distanceBetweenTwoDestinations;
                 nearestClient = client;
@@ -245,7 +257,7 @@ public class SolutionUtils {
                 // Prendre un voisin au hasard
                 client = getRandomClient(clientsNotDelivered);
                 ArrayList<Client> clientsNotDeliveredToManageDueTime = (ArrayList<Client>)clientsNotDelivered.clone();
-                client = selectClientMoreThoroughly(clientsNotDeliveredToManageDueTime,
+                client = selectClientMoreThoroughly(conf, clientsNotDeliveredToManageDueTime,
                         road.getDestinations().get(road.getDestinations().size()-1),
                         client,
                         time,
@@ -255,12 +267,13 @@ public class SolutionUtils {
             else
             {
                 // Prendre un voisin proche
-                client = (Client) getNearestClient(clientsNotDelivered, road.getDestinations().get(road.getDestinations().size()-1), time, capacityRemained, timeConstraint);
+                client = (Client) getNearestClient(conf, clientsNotDelivered, road.getDestinations().get(road.getDestinations().size()-1), time, capacityRemained, timeConstraint);
             }
 
 
             // Si le client peut être livré, alors on maj chaque info
-            if (isClientCanBeDelivered(road.getDestinations().get(road.getDestinations().size()-1), client, time, capacityRemained, timeConstraint)) {
+            if (isClientCanBeDelivered(conf.getCentralDepot(), road.getDestinations().get(road.getDestinations().size()-1),
+                    client, time, capacityRemained, timeConstraint)) {
 
                 int infos[] = calculateInfosBClientAndTheLastOnTheList(road, client, time, distance, capacityRemained);
                 time = infos[0];

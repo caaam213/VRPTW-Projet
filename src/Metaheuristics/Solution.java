@@ -166,31 +166,24 @@ public class Solution implements Cloneable {
             return false;
         }
         Solution solution = (Solution) o;
-        for (int i = 0; i < roads.size(); i++) {
-            if (solution.getRoadById(roads.get(i).getIdRoad()) == null) {
+        ArrayList<Road> roadsToCompare = (ArrayList<Road>) solution.getRoads().clone();
+        ArrayList<Road> roadsCurrent = (ArrayList<Road>) this.getRoads().clone();
+
+        // On compare pour chaque route, si les deux routes ont les mêmes destinations
+        // Si c'est le cas, on les supprime des deux listes
+        // Sinon on retourne false
+        for (int i = roadsToCompare.size()-1; i >=0; i--) {
+            for (int j = roadsCurrent.size()-1; j >=0; j--) {
+                if (roadsToCompare.get(i).returnListOfIdClient().equals(roadsCurrent.get(j)
+                        .returnListOfIdClient())) {
+                    roadsToCompare.remove(i);
+                    roadsCurrent.remove(j);
+                    break;
+                }
                 return false;
-            }
-            if (!roads.get(i).equals(solution.getRoadById(roads.get(i).getIdRoad()))) {
-                    return false;
             }
         }
         return true;
-    }
-
-    /**
-     * @param idRoad L'id de la route à récupérer
-     * @return La route ayant l'id donné
-     */
-    public Road getRoadById(int idRoad)
-    {
-        for (Road road : roads)
-        {
-            if (road.getIdRoad() == idRoad)
-            {
-                return road;
-            }
-        }
-        return null;
     }
 
     @Override

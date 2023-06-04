@@ -1,8 +1,8 @@
 import CallableFunctions.*;
 
-import static CallableFunctions.CallTestNeighborsFunctions.testHashSetCreation;
-
-
+/**
+ * Autrices du code : PERVENCHE Clémence & MERAOUI Camélia
+ */
 public class Main {
     public static void displayExecutionTime(long duration)
     {
@@ -21,13 +21,13 @@ public class Main {
 
         //////////////////////////////////////////////////////
         // TODO : Décommenter cette fonction pour tester la méthode génétique
-        /*CallGenetic.runGeneticWBasicParameter("101", false, true,
-                60, 1000, 0.33f,
-                30, false,false, false);*/
+        /*CallGenetic.runGenetic("202", false, true,
+                500, 1000, 0.33f,
+                200, false,false, true);*/
 
         // TODO : Décommenter cette fonction pour tester la méthode tabou
-       /*CallTaboo.runTabooWBasicParameter("1202", false, true,1,
-                50,1);*/
+       /*CallTaboo.runTaboo("101", false, true,1000,
+                100,1);*/
 
         // TODO : Décommenter cette fonction pour avoir le nombre minimal de véhicules pour une configuration
         //CallTestConstraints.displayMinimalNumberOfVehicles("101");
@@ -63,7 +63,7 @@ public class Main {
         //CallTestNeighborsFunctions.GenerateAllRelocateInter();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins 2-opt
-        //CallTestNeighborsFunctions.generateAllTwoOpt();
+        CallTestNeighborsFunctions.generateAllTwoOpt();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins cross-exchange
         //CallTestNeighborsFunctions.generateAllCrossExchange();

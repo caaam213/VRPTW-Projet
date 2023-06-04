@@ -1,7 +1,7 @@
 package Metaheuristics.Genetics;
 
 import Graphics.SolutionVisualization;
-import Metaheuristics.MetaheuristicUtils;
+import Utils.MetaheuristicUtils;
 import Metaheuristics.Solution;
 import Metaheuristics.Taboo.Result;
 import Utils.MapUtil;
@@ -437,7 +437,7 @@ public class GeneticMethod {
             // On sélectionne la meilleure solution de la population
             Solution bestKnownAmongPop = selectBestSolution(populationk);
 
-            // Si la meilleure solution de la population est meilleure que la meilleure solution connue, on la remplace
+            // Si la meilleure solution de la population est mieux que la meilleure solution connue, on la remplace
             if (bestKnownAmongPop.getTotalDistanceCovered() < bestKnown.getTotalDistanceCovered())
             {
                 bestKnown = bestKnownAmongPop;

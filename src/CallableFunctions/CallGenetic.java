@@ -8,7 +8,7 @@ import Utils.SolutionUtils;
 
 public class CallGenetic {
 
-    public static void runGeneticWBasicParameter(String numberFile,boolean generateVeryRandomSolution,
+    public static void runGenetic(String numberFile,boolean generateVeryRandomSolution,
                                                      boolean timeConstraint, int populationSize, int maxGeneration, float mutationRate,
                                       int nbBest,boolean useMutationHillClimbing,boolean useCrossoverHillClimbing, boolean bestSolutionReproDrastic)
     {

@@ -3,7 +3,7 @@ package Metaheuristics.Genetics;
 import Logistics.Client;
 import Logistics.Depot;
 import Logistics.Destination;
-import Metaheuristics.MetaheuristicUtils;
+import Utils.MetaheuristicUtils;
 import Metaheuristics.Road;
 import Metaheuristics.Solution;
 import Utils.SolutionUtils;
@@ -191,7 +191,8 @@ public class Crossover {
                         Destination arriveDestination = roadCloned.getDestinations().get(j);
                         int distanceBetweenDepartAndArrive = distanceBetweenTwoDestination(startDestination, arriveDestination);
 
-                        if (SolutionUtils.isClientCanBeDelivered(startDestination, arriveDestination, time, capacityRemained, timeConstraint))
+                        if (SolutionUtils.isClientCanBeDelivered(solutionChild.getConfig().getCentralDepot(),
+                                startDestination, arriveDestination, time, capacityRemained, timeConstraint))
                         {
                             infos = SolutionUtils.calculateInfosUsingDistanceBetween2Dests(arriveDestination, time, distance, distanceBetweenDepartAndArrive,
                                     capacityRemained);
@@ -287,7 +288,12 @@ public class Crossover {
             return null;
         else
         {
-            solutionChild.reCalculateTotalDistanceCovered(); // On met à jour la distance totale
+            if (solutionChild.equals(solutionParent1) || solutionChild.equals(solutionParent2))
+                return null;
+            else
+            {
+                solutionChild.reCalculateTotalDistanceCovered(); // On met à jour la distance totale
+            }
 
         }
         return solutionChild;
@@ -357,7 +363,12 @@ public class Crossover {
             return null;
         else
         {
-            solutionChild.reCalculateTotalDistanceCovered(); // On met à jour la distance totale
+            if (solutionChild.equals(solutionParent1) || solutionChild.equals(solutionParent2))
+                return null;
+            else
+            {
+                solutionChild.reCalculateTotalDistanceCovered(); // On met à jour la distance totale
+            }
         }
         return solutionChild;
 

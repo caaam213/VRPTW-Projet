@@ -57,6 +57,11 @@ public class CallTestCrossover {
         Solution solution1 = SolutionUtils.generateRandomSolution(configuration, true, true);
         Solution solution2 = SolutionUtils.generateRandomSolution(configuration, false, true);
 
+        SolutionVisualization visualization = new SolutionVisualization();
+        visualization.DisplayGraph(solution1, "Solution 1");
+        visualization.DisplayGraph(solution2, "Solution 2");
+
+
         // Affichage des routes
         System.out.println("Routes de base :");
         //Solution 1
@@ -94,7 +99,7 @@ public class CallTestCrossover {
                             for (int k = 0; k < solutionSBX.getRoads().size(); k++) {
                                 System.out.println(solutionSBX.getRoads().get(k).toString());
                             }
-                            SolutionVisualization visualization = new SolutionVisualization();
+
                             visualization.DisplayGraph(solutionSBX, "SBX generee numero "+counter);
                             counter++;
                         }
@@ -114,6 +119,10 @@ public class CallTestCrossover {
 
         Solution solution1 = SolutionUtils.generateRandomSolution(configuration, true, true);
         Solution solution2 = SolutionUtils.generateRandomSolution(configuration, false, true);
+
+        SolutionVisualization visualization = new SolutionVisualization();
+        visualization.DisplayGraph(solution1, "Solution 1");
+        visualization.DisplayGraph(solution2, "Solution 2");
 
         // Affichage des routes
         System.out.println("Routes de base :");
@@ -143,7 +152,6 @@ public class CallTestCrossover {
                     for (int k = 0; k < solutionRBX.getRoads().size(); k++) {
                         System.out.println(solutionRBX.getRoads().get(k).toString());
                     }
-                    SolutionVisualization visualization = new SolutionVisualization();
                     visualization.DisplayGraph(solutionRBX, "RBX generee numero " + counter);
                     counter++;
                 }

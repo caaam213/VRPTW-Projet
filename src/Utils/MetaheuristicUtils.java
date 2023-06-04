@@ -1,8 +1,10 @@
-package Metaheuristics;
+package Utils;
 import Logistics.Destination;
 import Metaheuristics.NeighborOperators.Exchange;
 import Metaheuristics.NeighborOperators.Relocate;
 import Metaheuristics.NeighborOperators.TwoOptAndCrossExchange;
+import Metaheuristics.Road;
+import Metaheuristics.Solution;
 import Metaheuristics.Taboo.Result;
 import Metaheuristics.Taboo.Transformation;
 import Utils.SolutionUtils;
@@ -228,32 +230,30 @@ public class MetaheuristicUtils {
     {
         int size = candidate.getARoad(roadSelected).getDestinations().size();
         Road newRoad = candidate.getRoads().get(roadSelected);
-
         int time = 0;
         int distance = 0;
         int capacityRemained = candidate.getConfig().getTruck().getCapacity();
         int infos[];
-
         for (int i = 0; i < size-1; i++) {
             Destination departedClient = newRoad.getDestinations().get(i);
             Destination arrivedClient = newRoad.getDestinations().get(i+1);
 
             int distanceBetweenDepartAndArrive = distanceBetweenTwoDestination(departedClient, arrivedClient);
-            if (SolutionUtils.isClientCanBeDelivered(departedClient, arrivedClient, time, capacityRemained, timeConstraint) == false) {
+            if (!SolutionUtils.isClientCanBeDelivered(candidate.getConfig().getCentralDepot(),
+                    departedClient, arrivedClient, time, capacityRemained, timeConstraint)) {
 
                 return null;
             }
             else {
-                infos = SolutionUtils.calculateInfosUsingDistanceBetween2Dests(arrivedClient,time, distance, distanceBetweenDepartAndArrive, capacityRemained);
+                infos = SolutionUtils.calculateInfosUsingDistanceBetween2Dests(arrivedClient,time, distance,
+                        distanceBetweenDepartAndArrive, capacityRemained);
                 time = infos[0];
                 capacityRemained = infos[1];
                 distance = infos[2];
             }
         }
         candidate.getRoads().set(roadSelected, newRoad);
-
         return candidate;
-
     }
 
     /**

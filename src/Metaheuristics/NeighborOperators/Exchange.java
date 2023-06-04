@@ -1,7 +1,7 @@
 package Metaheuristics.NeighborOperators;
 
 import Logistics.Destination;
-import Metaheuristics.MetaheuristicUtils;
+import Utils.MetaheuristicUtils;
 import Metaheuristics.Road;
 import Metaheuristics.Solution;
 import Metaheuristics.Taboo.*;

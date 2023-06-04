@@ -2,14 +2,14 @@ package Metaheuristics.Taboo;
 
 
 import Graphics.SolutionVisualization;
-import Metaheuristics.MetaheuristicUtils;
+import Utils.MetaheuristicUtils;
 
 import Metaheuristics.Solution;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import static Metaheuristics.MetaheuristicUtils.fitness;
+import static Utils.MetaheuristicUtils.fitness;
 
 
 /**

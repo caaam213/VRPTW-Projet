@@ -8,7 +8,7 @@ import Utils.SolutionUtils;
 
 public class CallTaboo {
 
-    public static void runTabooWBasicParameter(String numberFile,
+    public static void runTaboo(String numberFile,
                                                    boolean generateVeryRandomSolution,
                                                    boolean timeConstraint,
                                                    int maxIteration,
