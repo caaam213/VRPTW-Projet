@@ -63,7 +63,7 @@ public class Main {
         //CallTestNeighborsFunctions.GenerateAllRelocateInter();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins 2-opt
-        CallTestNeighborsFunctions.generateAllTwoOpt();
+        //CallTestNeighborsFunctions.generateAllTwoOpt();
 
         // TODO : Décommenter cette fonction pour tester la génération de tous les voisins cross-exchange
         //CallTestNeighborsFunctions.generateAllCrossExchange();
