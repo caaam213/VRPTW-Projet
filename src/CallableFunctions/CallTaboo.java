@@ -8,6 +8,14 @@ import Utils.SolutionUtils;
 
 public class CallTaboo {
 
+    /**
+     * @param numberFile : Le numéro du fichier à utiliser
+     * @param generateVeryRandomSolution : si vrai, la solution initiale sera générée de manière très aléatoire
+     * @param timeConstraint : si vrai, on utilise la contrainte de temps
+     * @param maxIteration : nombre maximum d'itérations
+     * @param tabooSizeList : taille de la liste Taboo
+     * @param chosenTransformation : Type de transformation choisie
+     */
     public static void runTaboo(String numberFile,
                                                    boolean generateVeryRandomSolution,
                                                    boolean timeConstraint,

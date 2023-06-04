@@ -53,6 +53,7 @@ public class SolutionUtils {
 
     /**
      * Fonction qui permet de vérifier si les contraintes sont respectées
+     * @param depot : le dépot
      * @param startClient : le client de départ
      * @param arriveClient : le client d'arrivée
      * @param time : le temps actuel
@@ -63,13 +64,11 @@ public class SolutionUtils {
     public static boolean isClientCanBeDelivered(Depot depot, Destination startClient, Destination arriveClient, int time, int capacity,
                                                  boolean timeConstraint)
     {
-
         // On vérifie si la destination d'arrivée est null
         if(arriveClient == null)
         {
             return false;
         }
-
         if (arriveClient instanceof Client)
         {
             // Si on vérifie la contrainte de temps, on vérifie si time+distance > arriveClient.getDueTime()
@@ -78,9 +77,8 @@ public class SolutionUtils {
                 if (timeCalculated > arriveClient.getDueTime()) {
                     return false;
                 }
-
                 // On vérifie que le temps est inférieur au temps de fermeture du dépot
-                if (timeCalculated > depot.getDueTime()) {
+                if (timeCalculated + distanceBetweenTwoDestination(arriveClient, depot) > depot.getDueTime()) {
                     return false;
                 }
             }
@@ -89,8 +87,6 @@ public class SolutionUtils {
             {
                 return false;
             }
-
-
         }
         return true;
     }

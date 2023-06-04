@@ -8,6 +8,9 @@ import Metaheuristics.Solution;
 import Utils.SolutionUtils;
 
 public class CallTestCrossover {
+    /**
+     * Vérifier si la fonction qui supprime les clients servis plus d'une fois fonctionne correctement
+     */
     public static void testRemoveClientServedMoreThanOnce()
     {
         Solution solution = new Solution();
@@ -49,6 +52,9 @@ public class CallTestCrossover {
 
     }
 
+    /**
+     * Tester le crossover SBX
+     */
     public static void testCrossoverSBX()
     {
 
@@ -112,6 +118,9 @@ public class CallTestCrossover {
         }
     }
 
+    /**
+     * Tester le crossover RBX
+     */
     public static void testCrossoverRBX()
     {
 

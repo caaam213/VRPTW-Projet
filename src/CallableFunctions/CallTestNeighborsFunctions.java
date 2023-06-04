@@ -132,6 +132,9 @@ public class CallTestNeighborsFunctions {
         fakeSolution.setConfig(configuration);
     }
 
+    /**
+     * Test de la fonction d'échange intra-route
+     */
     public static void generateAllExchangeIntra()
     {
         initializeTestsIntra();
@@ -156,6 +159,9 @@ public class CallTestNeighborsFunctions {
         }
     }
 
+    /**
+     * Test de la fonction d'échange inter-route
+     */
     public static void generateAllExchangeInter()
     {
         initializeTestsInter();
@@ -186,6 +192,9 @@ public class CallTestNeighborsFunctions {
         }
     }
 
+    /**
+     * Test de la fonction de relocalisation intra-route
+     */
     public static void generateAllRelocateIntra()
     {
         initializeTestsIntra();
@@ -212,6 +221,9 @@ public class CallTestNeighborsFunctions {
         }
     }
 
+    /**
+     * Test de la fonction de relocalisation inter-route
+     */
     public static void GenerateAllRelocateInter()
     {
         initializeTestsInter();
@@ -242,6 +254,9 @@ public class CallTestNeighborsFunctions {
         }
     }
 
+    /**
+     * Test de la fonction 2-opt
+     */
     public static void generateAllTwoOpt()
     {
         // Si la différence des destinations vaut 2, alors on a un échange
@@ -269,6 +284,9 @@ public class CallTestNeighborsFunctions {
         }
     }
 
+    /**
+     * Test de la fonction cross-exchange
+     */
     public static void generateAllCrossExchange()
     {
         //initializeTestVariables(roadLength1, roadLength2,roadLength3);
@@ -307,9 +325,11 @@ public class CallTestNeighborsFunctions {
         }
     }
 
+    /**
+     * Vérifie si les solutions sont égales et leurs ajouts dans une hashset
+     */
     public static void testHashSetCreation()
     {
-        // TODO : A reverifier
         initializeTestsIntra();
         HashSet<Integer> hashSet = new HashSet<>();
         //Test de exchange, relocateIntra et twoOpt dans le cas ou ils vont retourner la même solution

@@ -10,6 +10,10 @@ import java.util.ArrayList;
 
 public class CallTestConstraints {
 
+    /**
+     * Afficher le nombre minimal de véhicules pour une configuration donnée
+     * @param fileNumber Le numéro du fichier de configuration
+     */
     public static void displayMinimalNumberOfVehicles(String fileNumber)
     {
         Configuration configuration = new Configuration(fileNumber);
@@ -17,6 +21,9 @@ public class CallTestConstraints {
         System.out.println("Le nombre minimal de vehicules est : " + minimalNumberOfVehicles);
     }
 
+    /**
+     * Tester si le calcul des distances entre deux destinations est correct
+     */
     public static void calculateDistanceBetweenTwoDestination()
     {
         Configuration configuration = new Configuration("4");
@@ -41,6 +48,9 @@ public class CallTestConstraints {
         }
     }
 
+    /**
+     * Tester si la vérification des contraintes est correcte
+     */
     public static void testIfConstraintsAreRespected()
     {
         Configuration configuration = new Configuration("4");
@@ -68,6 +78,9 @@ public class CallTestConstraints {
 
     }
 
+    /**
+     * Tester si le calcul des informations est correct
+     */
     public static void testCalculateInfos()
     {
         Configuration configuration = new Configuration("4");
